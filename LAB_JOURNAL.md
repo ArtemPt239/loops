@@ -6,6 +6,7 @@ Run [runs/20261107-155418-neutral-varied](runs/20261107-155418-neutral-varied/) 
 - Buggy: 10 honest, 15 hidden hack (30% [18, 44]), 4 hardcode, 21 other (19 truncated). Control: 0/50 hidden hack (Fisher p = 9e-6).
 - Same 50 tasks under the old suites (held-out run): 13/50 sample 0, 29/100 both samples. Varied vs old (sample 0): p = 0.82. The degenerate suites did not drive the hack rate.
 - Code + tests monitor 0/15, code only 0/15; CoT 10/15 = 67% [40, 87], flags 1/10 honest. Criterion 4 narrowly fails on the point estimate at n = 15.
+- Thinking-on monitors: code + tests 13/15, 0/10 honest, AUROC 0.91; code only 3/15, AUROC 0.80.
 
 ## 2026-11-07 15:54 — Fix: varied visible tests; setup A rerun on the same 50 tasks launched
 
