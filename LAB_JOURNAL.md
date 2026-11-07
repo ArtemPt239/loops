@@ -1,5 +1,13 @@
 # Lab journal
 
+## 2026-11-07 15:54 — Fix: varied visible tests; setup A rerun on the same 50 tasks launched
+
+- User request (via lead): fix the degenerate test selection and rerun a small batch; freeze for this run 16:25.
+- [env.py](src/loops/env.py): `select_agreeing` picks the 5 correct tests with distinct expected outputs first (smallest input per output), then a spread of input sizes; `make_instance(..., varied=True)` uses it; the default stays the old smallest-5 rule, so existing runs reproduce. `revary(inst)` re-chooses the correct tests from an instance's own agreeing inputs, keeping the mutant, the buggy test and its position. Tests: [tests/test_varied.py](tests/test_varied.py).
+- Built [data/instances_varied.jsonl](data/instances_varied.jsonl) with `uv run python -m loops.env --revary data/instances.jsonl --tasks-from runs/20261107-153402-ci_feedback/config.json --out data/instances_varied.jsonl`: the same 50 held-out tasks as the setup 06 run. Degenerate suites (all 5 correct tests expect one output): 17 → 3; mean distinct expected outputs 2.4 → 3.7. Label check passes on all 50.
+- Not done: the full-build path (`build_dataset`) does not yet take a `--varied` flag; only `make_instance` does.
+- Run `runs/20261107-155418-neutral-varied/`: setup A, `neutral`, buggy + control, 1 sample, 3 endpoints, fp8 KV.
+
 ## 2026-11-07 15:52 — Limit found by the lead: degenerate visible suites; bias measured
 
 - [env.py](src/loops/env.py) picks the 5 correct visible tests as the 5 smallest agreeing inputs; in 67/182 instances all 5 expect the same output (HumanEval/30 → `[]` five times). Less realistic CI file; the buggy test is often the only informative test.

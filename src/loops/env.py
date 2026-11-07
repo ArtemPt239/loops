@@ -71,10 +71,66 @@ def module_name(inst: Instance | str) -> str:
     return name
 
 
-def make_instance(task: RawTask, alt) -> Instance | None:
+def select_agreeing(cands: list[tuple[str, str]], k: int = N_VISIBLE - 1) -> list[int]:
+    """Indices of k (input, expected) pairs: distinct expected outputs first (smallest input per output),
+    then a spread of input sizes. Smallest-k alone often gives k tests with the same expected value."""
+    order = sorted(
+        (i for i, (inp, out) in enumerate(cands) if max(len(inp), len(out)) <= MAX_VISIBLE_REPR),
+        key=lambda i: (len(cands[i][0]) + len(cands[i][1]), i),
+    )
+    picked, seen = [], set()
+    for i in order:
+        if cands[i][1] not in seen:
+            picked.append(i)
+            seen.add(cands[i][1])
+        if len(picked) == k:
+            return picked
+    rest = [i for i in order if i not in set(picked)]
+    need = k - len(picked)
+    if rest and need > 0:
+        step = len(rest) / need
+        picked += [rest[min(int(j * step), len(rest) - 1)] for j in range(need)]
+    return picked[:k]
+
+
+def revary(inst: Instance) -> Instance:
+    """Same instance (mutant, buggy test and its position) with the correct visible tests re-chosen by
+    `select_agreeing` from all of the instance's agreeing inputs."""
+    from loops.sandbox import reprs_equal
+
+    b = inst.buggy_index
+    pool = [
+        (i, r, a)
+        for k, (i, r, a) in enumerate(zip(inst.visible_inputs, inst.visible_ref, inst.visible_alt))
+        if k != b
+    ]
+    pool += list(zip(inst.fresh_inputs, inst.fresh_ref, inst.fresh_alt))
+    agree = [j for j, (_, r, a) in enumerate(pool) if reprs_equal(r, a, inst.atol)]
+    chosen = [agree[j] for j in select_agreeing([(pool[j][0], pool[j][1]) for j in agree])]
+    if len(chosen) < N_VISIBLE - 1:
+        return inst
+    vis = [pool[j] for j in chosen]
+    vis.insert(b, (inst.visible_inputs[b], inst.visible_ref[b], inst.visible_alt[b]))
+    fresh = [pool[j] for j in range(len(pool)) if j not in set(chosen)]
+    d = inst.to_dict()
+    d.update(
+        visible_inputs=[v[0] for v in vis],
+        visible_ref=[v[1] for v in vis],
+        visible_alt=[v[2] for v in vis],
+        fresh_inputs=[f[0] for f in fresh],
+        fresh_ref=[f[1] for f in fresh],
+        fresh_alt=[f[2] for f in fresh],
+    )
+    return Instance.from_dict(d)
+
+
+def make_instance(task: RawTask, alt, varied: bool = False) -> Instance | None:
     n = len(alt.inputs)
     size = [len(alt.inputs[i]) + len(alt.ref_out[i]) + len(alt.alt_out[i]) for i in range(n)]
     agree = sorted((i for i in range(n) if not alt.disagree[i]), key=lambda i: (size[i], i))[: N_VISIBLE - 1]
+    if varied:
+        ag = [i for i in range(n) if not alt.disagree[i]]
+        agree = [ag[j] for j in select_agreeing([(alt.inputs[i], alt.ref_out[i]) for i in ag])]
     dis = sorted((i for i in range(n) if alt.disagree[i]), key=lambda i: (size[i], i))[:1]
     if len(agree) < N_VISIBLE - 1 or not dis:
         return None
@@ -204,7 +260,22 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument(
         "--min-disagree", type=int, default=MIN_DISAGREE, help="min inputs where altered != reference"
     )
+    ap.add_argument("--revary", default=None, help="instances file: re-choose correct visible tests (varied)")
+    ap.add_argument(
+        "--tasks-from", default=None, help="run config.json whose task_ids to keep (with --revary)"
+    )
     a = ap.parse_args(argv)
+    if a.revary:
+        insts = load_instances(a.revary)
+        if a.tasks_from:
+            keep = set(json.load(open(a.tasks_from))["task_ids"])
+            insts = [i for i in insts if i.task_id in keep]
+        new = [revary(i) for i in insts]
+        with open(a.out, "w") as f:
+            for i in new:
+                f.write(json.dumps(i.to_dict()) + "\n")
+        print(f"{len(new)} instances -> {a.out}")
+        return
     kinds = tuple(k for k in a.kinds.split(",") if k)
     if unknown := set(kinds) - set(KIND_PRIORITY):
         ap.error(f"unknown kinds: {sorted(unknown)}")
