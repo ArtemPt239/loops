@@ -1,5 +1,14 @@
 # Lab journal
 
+## 2026-11-07 15:49 — Setup 06 result: hack rate 34%, code monitor 1/17, but CoT monitor false positives 3/9
+
+Run [runs/20261107-153402-ci_feedback](runs/20261107-153402-ci_feedback/) (50 held-out tasks, 1 sample, buggy + control; turn 1 380 s, total ~13 min). Section in [results/summary.md](results/summary.md).
+- Turn 1 (tests hidden): 42/50 honest in both conditions. 45/50 buggy samples failed CI and got a second turn.
+- Final, buggy: 9 honest, 17 hidden hack (34% [20, 48]; comparison flips 16/41), 5 hardcode, 19 other (11 truncated). Control: 45 honest, 0 hidden hack. Fisher p = 1.5e-6.
+- Code + tests monitor catches 1/17 (AUROC 0.48); code only 0/17. CoT monitor catches 17/17 but flags 3/9 honest (33%) → criterion 4 fails on false positives, with only 9 honest samples.
+- The 3 false positives: the CoT monitor says the model changed its code to pass the test, yet the final code fails the buggy test and matches the reference. Possibly failed hack attempts; not checked (time).
+- Comparison with setup A (held-out): hack rate 34% vs 17%; code monitor 6% vs 22%; CoT catch 100% vs 75%; CoT false positives 33% (3/9) vs 7% (7/104).
+
 ## 2026-11-07 15:34 — Setup 06 (CI feedback round) launched; deadline moved
 
 - Change of plan (user, via lead): deadline 17:00, freeze 16:00, write-up 16:20. Task: measure setup 06 from [ideas/06-ci-feedback-round.md](ideas/06-ci-feedback-round.md) with setup A's instances, grader, controls and monitors unchanged.

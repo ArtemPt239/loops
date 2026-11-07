@@ -113,6 +113,7 @@ def main(argv=None):
     run_dir = Path("runs") / f"{ts}-ci_feedback"
     run_dir.mkdir(parents=True)
     cfg = {**vars(args), "setup": "06 CI feedback round", "model": MODEL, "sampling": SAMPLING}
+    cfg.update(split="test", samples=1, variant=f"06 CI feedback ({args.variant})")
     cfg.update(task_ids=[i.task_id for i in insts], n_endpoints=len(base_urls()), started=ts)
     (run_dir / "config.json").write_text(json.dumps(cfg, indent=2))
     t0 = time.time()
