@@ -105,14 +105,20 @@ Details per row: [best setup](https://github.com/ArtemPt239/loops/blob/main/resu
 
 ### Where it got stuck
 
-- **Long waits for compute:** reasoning runs up to 12k tokens per sample, so one held-out run took about 18 minutes and an experiment loop that waited on each run would iterate slowly. We fixed this by iterating on small samples (up to 50 per group) and by running a parallel ideas loop that generates candidate setups, filters them down to the most promising, and feeds those to the experiment loop to verify.
+**The main bottleneck was waiting for compute.**
+Qwen3-8B reasons for up to 12k tokens per sample, so one held-out run took about 18 minutes, and a loop that waits on every run iterates slowly.
+How we got around it:
+- iterate on small samples (up to 50 per group), and run the full held-out set only once a setup looked promising;
+- run a parallel ideas loop that generates candidate setups, filters them down to the most promising on paper and with small pilots, and feeds those to the experiment loop to verify, so the experiment loop never waits for its next idea;
+- get more out of the GPUs: three servers, an fp8 KV cache (GPU memory, not compute, was the limit), and a fix for a routing bug that had sent all requests to one server ([LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md)).
+
+Other limits:
 - **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
 - Two designs were rejected before any code: tests that only hardcoding can pass (as in [ImpossibleBench](https://arxiv.org/abs/2510.20270)), which any output monitor sees; and a suite where every test is wrong, where honest work earns nothing.
 - A third of samples ran out of tokens while deliberating, so the hack rate is a lower bound.
 - The first correct tests were often trivial (one output five times); after fixing and rerunning, the hack rate did not change (30% vs 29%).
 - Same-size monitors are unreliable: one misread its score scale (found by reading outputs, fixed), and the CoT monitor misses 25% of hacks.
 - In "tests for a buggy function" many hacks are unknowing, so no CoT monitor can catch them.
-- Infrastructure: client timeouts, a KV-cache bottleneck and a request-routing bug, each found from logs or server metrics and fixed ([LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md)).
 
 ### What it would need next
 
