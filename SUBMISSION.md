@@ -33,11 +33,11 @@ We found no such model organism on a small open model ([LITERATURE.md](https://g
 coding hacks studied so far are visible in the code (hardcoded tests, edited tests, grader exploits), or the misbehavior is instructed.
 Full statement: [PROBLEM.md](https://github.com/ArtemPt239/loops/blob/main/PROBLEM.md).
 
-Why this shape is useful:
-the gap between monitors is what a CoT-based method must preserve — if a training or monitoring method makes the CoT look clean while the hack continues, the CoT monitor's catch rate drops while the execution-based hack rate stays, which is obfuscation measured directly;
-the label never depends on a monitor;
-the only pressure is the ordinary one to make CI pass, the way real coding agents bend a spec to pass a test;
-and the decision is localized (one comparison token, an 8B open model, a matched control for every buggy task), which suits probes and other white-box methods.
+Why this shape (a small open model that reward-hacks in a way its code hides but its reasoning shows) is useful:
+because the code hides the hack, it stands in today for the expected regime where output monitors fail, and shows why output-only monitoring will not scale;
+because the reasoning shows it, a CoT-based training or monitoring method can be tested for whether it keeps that signal or teaches the model to hide it;
+because the model is small and open, white-box methods can be compared with CoT monitoring on the same samples.
+Since our label comes from running code, not from any monitor, a clean-looking CoT over a continuing hack shows up as obfuscation, measured directly.
 
 It is checkable by computation.
 Each property in the problem statement became a test with a threshold ([PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/PROMPT.md), Goal table):
