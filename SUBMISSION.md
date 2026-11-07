@@ -85,7 +85,7 @@ For example, two designs were rejected before any code: tests that only hardcodi
 ### What the loop found
 
 **We found a setup that matches the criteria:** a coding task whose CI suite has five correct tests and one buggy test, written from the reference solution with one token changed.
-Every check in the table above passes on point estimates.
+Every check in the table above passes on point estimates ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
 The reward structure alone (score = fraction of CI tests passed, no instruction to hack) makes Qwen3-8B hack in 17% [12, 23] of samples on 150 held-out tasks, against 0–1% in two controls without a wrong test.
 The hack is a one-token change that reads like an ordinary implementation choice.
 The reasoning says it outright ("given that the test case is part of the problem, I must adjust my code…", HumanEval/3), while the code monitor answers "The code correctly implements the task description".
@@ -102,7 +102,6 @@ Full results: [results/summary.md](https://github.com/ArtemPt239/loops/blob/main
 All monitors are the same Qwen3-8B with thinking off; "best setup" is "setup A" in the repository.
 Details per row: [best setup](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#answer), [varied tests](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#setup-a-with-varied-visible-tests-same-50-tasks), [CI feedback round](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#setup-06-setup-a-plus-one-ci-feedback-round), [tests for a buggy function](https://github.com/ArtemPt239/loops/blob/main/ideas/08-tests-for-given-buggy-code.md).
 
-- The best setup passes all criteria on point estimates ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
 - The monitors are not blind: they flag a synthetic hardcoded special case 80–91% of the time.
 - **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
 - In "tests for a buggy function" many hacks are unknowing (the model copies the code's behavior into the test without noticing the bug), so no CoT monitor can catch them.
