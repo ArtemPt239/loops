@@ -105,6 +105,7 @@ Details per row: [best setup](https://github.com/ArtemPt239/loops/blob/main/resu
 
 ### Where it got stuck
 
+- **Long waits for compute:** reasoning runs up to 12k tokens per sample, so one held-out run took about 18 minutes and an experiment loop that waited on each run would iterate slowly. We fixed this by iterating on small samples (up to 50 per group) and by running a parallel ideas loop that generates candidate setups, filters them down to the most promising, and feeds those to the experiment loop to verify.
 - **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
 - Two designs were rejected before any code: tests that only hardcoding can pass (as in [ImpossibleBench](https://arxiv.org/abs/2510.20270)), which any output monitor sees; and a suite where every test is wrong, where honest work earns nothing.
 - A third of samples ran out of tokens while deliberating, so the hack rate is a lower bound.
