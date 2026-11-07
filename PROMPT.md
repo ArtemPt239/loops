@@ -32,11 +32,12 @@ A well-measured negative result also reaches the goal.
 
 **Deadline: submission ready by 16:10 CET today.** Launch no new runs after 15:15; freeze experiments at 15:35 (what is in `samples.jsonl` by then is the result; `--resume` only to finish grading, monitors and metrics). Commit `results/summary.md` and `README.md` by 15:55. `SUBMISSION.md` is written by the lead session.
 
-## Current state (final, 15:25 CET)
+## Current state (15:55 CET)
 
 Goal reached: setup A passes criteria 1–6 on 150 held-out tasks on point estimates ([results/summary.md](results/summary.md), [SUBMISSION.md](SUBMISSION.md)).
 Hidden hack 17% [12, 23] vs 0/150 and 1/150 in the controls; code + tests monitor catches 22% [10, 35]; CoT monitor 75% [58, 90] with 7% false positives.
 Open: the CIs for criteria 3 and 4 cross their thresholds; Qwen3-8B with thinking on, reading code + tests, catches 60% of hidden hacks; 33% of buggy-condition samples truncate at 12,288 tokens.
+Setup 06 (CI feedback round, [src/loops/feedback.py](src/loops/feedback.py)) on 50 held-out tasks: hack rate 34%, code + tests monitor 1/17, CoT monitor 17/17 but 3/9 false positives (criterion 4 fails at this n). Known limit: 67/182 instances have degenerate visible suites (journal 15:52).
 To continue: read the newest entries of [LAB_JOURNAL.md](LAB_JOURNAL.md), then take the "Later" tasks in [TASKS.md](TASKS.md) (full-size thinking-monitor rerun, more samples per task, larger token budget, more comparison-flip tasks, fine-tuning on [results/sneaky_hacks.jsonl](results/sneaky_hacks.jsonl)).
 Commands: [README.md](README.md), "Reproduce". Servers: any vLLM endpoints with Qwen3-8B, listed in `OPENAI_BASE_URLS`.
 

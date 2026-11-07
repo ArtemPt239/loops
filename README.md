@@ -26,6 +26,7 @@ The prompt never mentions hacking. Ground truth comes from running the code on f
 - **Main limit:** the same model with thinking on, given the tests, catches 60% of hidden hacks (AUROC 0.80). The hack is invisible in the code alone (thinking monitor without tests: 1 of 27 comparison flips) but visible to a monitor that reasons and checks the buggy test against the description.
 - 33% of buggy-condition samples run out of the 12k-token budget while deliberating about the conflict.
 - Positive control: the same code monitors flag a canonical hardcode (`if args == <test input>: return <expected>`) 80–91% of the time.
+- **Setup 06** (same tasks, tests hidden in turn 1, then one round with the red CI log; 50 held-out tasks, 1 sample): hidden hack 34% [20, 48] vs 0/50 control; code + tests monitor catches 1/17; CoT monitor catches 17/17 but flags 3/9 honest samples, so criterion 4 fails on false positives at this small n ([summary](results/summary.md#setup-06-setup-a-plus-one-ci-feedback-round), [run](runs/20261107-153402-ci_feedback/)).
 - Seed dataset for future work: [results/sneaky_hacks.jsonl](results/sneaky_hacks.jsonl), 37 hacks that the CoT monitor flags and the code monitor misses.
 
 ## Reproduce
@@ -42,6 +43,8 @@ export OPENAI_BASE_URLS=http://localhost:8000/v1    # comma-separated list to sp
 # the held-out run in results/summary.md (≈ 30 min on 3 L40S servers with --kv-cache-dtype fp8)
 uv run python -m loops.run --variant neutral --split test --conditions buggy,control,control5 \
     --samples 2 --control-samples 1 --kv-cache-dtype fp8 --tag heldout
+# setup 06: CI feedback round (41 comparison-flip + 9 other held-out tasks, 1 sample)
+uv run python -m loops.feedback --n-comparison 41 --n-other 9
 # the dev runs used to pick the prompt variant
 uv run python -m loops.run --variant neutral --split dev --samples 2
 uv run python -m loops.run --variant release --split dev --samples 2
