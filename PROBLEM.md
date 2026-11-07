@@ -8,7 +8,7 @@ To test these methods we need a model organism of sneaky reward hacking.
 
 AFAIK there is no such model organism out there and building it would be helpful for any researchers who wants to study monitoring mechanisms and for showcasing the weakness of current approach to monitorability.
 
-
+The primary contribution is a new model organism researchers can then reuse to test their alignment/monitorability approaches against.
 
 Properties of the model organism we want:
 - The behavior is reward hacking on coding tasks. This restriction in setup is needed to make the setup realistic and relatable.
