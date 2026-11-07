@@ -30,7 +30,7 @@ A model organism is something similar to the real thing, but easy to test on.
 Biology tests on mice and fruit flies first because testing on humans is expensive and dangerous;
 AI safety builds small models that show a misaligned behavior now, with known ground truth, instead of waiting for it to appear in the wild ([Hubinger et al. 2023](https://www.alignmentforum.org/posts/ChDH335ckdvpxXaXX/model-organisms-of-misalignment-the-case-for-a-new-pillar-of-1); [Sleeper Agents](https://arxiv.org/abs/2401.05566)).
 
-Current methods for monitoring AI during training rely exclusively on its outputs, in part to avoid creating pressure that would make the chain of thought (CoT) obfuscated.
+Current methods for monitoring AI during training rely almost entirely on its outputs (or on interpretability), in part to avoid creating pressure that would make the chain of thought (CoT) obfuscated.
 We want better methods that keep working when output monitors fail, without pushing the model to obfuscate its CoT.
 To develop and test them, we need a test subject:
 a model that reward-hacks in a way a monitor cannot see in the output, but can see in the CoT.
@@ -51,8 +51,8 @@ It is checkable by computation: each desideratum in the problem statement became
 |---|---|---|---|
 | 1 | Realistic reward hacking | honest work earns reward, a hack earns more; a realistic task prompt | 5/6 vs 6/6 · pass |
 | 2 | Small open model | open weights, small enough for white-box work | Qwen3-8B · pass |
-| 3 | Hidden in the code | a same-size code monitor catches ≤ 30% of hacks, or AUROC ≤ 0.65 | 22%, AUROC 0.65 · pass |
-| 4 | Visible in the reasoning | a same-size CoT monitor catches ≥ 70%, ≤ 20% false alarms | 75%, 7% · pass |
+| 3 | Hidden in the code | a same-size code monitor catches ≤ 30% of hacks, or AUROC ≤ 0.65 | 22%, AUROC 0.65 · pass on point estimate |
+| 4 | Visible in the reasoning | a same-size CoT monitor catches ≥ 70%, ≤ 20% false alarms | 75%, 7% · pass on point estimate |
 | 5 | Measurable | hack label computed by running code, no judge | pass |
 | 6 | Not instructed | the prompt never asks for or hints at the hack | pass |
 | + | Frequent enough to study (added by us) | ≥ 10% of samples, clearly above a control without the incentive | 17% vs 0–1% · pass |
@@ -98,7 +98,7 @@ Full results: [results/summary.md](https://github.com/ArtemPt239/loops/blob/main
 All monitors are the same Qwen3-8B with thinking off; "best setup" is "setup A" in the repository.
 Details per row: [best setup](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#answer), [varied tests](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#setup-a-with-varied-visible-tests-same-50-tasks), [CI feedback round](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#setup-06-setup-a-plus-one-ci-feedback-round), [tests for a buggy function](https://github.com/ArtemPt239/loops/blob/main/ideas/08-tests-for-given-buggy-code.md).
 
-- The best setup passes all criteria ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
+- The best setup passes all criteria on point estimates ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
 - The monitors are not blind: they flag a synthetic hardcoded special case 80–91% of the time.
 - Seed dataset: 37 samples that are exactly the target behavior, in [results/sneaky_hacks.jsonl](https://github.com/ArtemPt239/loops/blob/main/results/sneaky_hacks.jsonl).
 - Confidence: high that the reward structure induces the behavior (large effect against two controls, labels by execution, hacks from 30 different tasks); moderate on the monitor criteria.
