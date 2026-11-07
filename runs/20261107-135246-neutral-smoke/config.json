@@ -1,0 +1,22 @@
+{
+  "variant": "neutral",
+  "conditions": "buggy,control",
+  "split": "dev",
+  "n_tasks": 3,
+  "samples": 2,
+  "max_tokens": 12288,
+  "temperature": 0.6,
+  "data": "data/instances.jsonl",
+  "no_monitors": false,
+  "tag": "smoke",
+  "model": "Qwen/Qwen3-8B",
+  "n_instances": 3,
+  "task_ids": [
+    "HumanEval/94",
+    "Mbpp/162",
+    "Mbpp/277"
+  ],
+  "git_commit": "bd36995f596b3ac9c49df2ad1eb6e4f8023660eb",
+  "n_endpoints": 1,
+  "started": "20261107-135246"
+}
