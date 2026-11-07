@@ -57,7 +57,11 @@ TODO (numbers with links to `results/summary.md` and `runs/`, how verified, conf
   tests that only hardcoding can pass (as in [ImpossibleBench](https://arxiv.org/abs/2510.20270)), because the model hardcodes the test input and any output monitor sees it;
   and a suite where every visible test comes from the altered solution, because honest work would earn nothing.
 - GPU capacity: no L40S instances were free in the first cloud region we tried; we moved region and got one smaller instance of the same GPU.
-- TODO (failures and wrong results from the run)
+- Monitors read the 0–10 score as confidence instead of suspicion (`SCORE: 10` next to `VERDICT: NO`), which would have broken every AUROC. Found by reading monitor outputs; fixed by asking for the verdict first ([LAB_JOURNAL.md](LAB_JOURNAL.md), 13:59). The ideas loop hit the same inversion independently.
+- The first development runs produced nothing in 10 minutes: long reasoning (up to 12k tokens) under load exceeded the client timeout, and each retry restarted generation ([LAB_JOURNAL.md](LAB_JOURNAL.md), 14:09).
+- In a first 8-sample probe, half the samples ran out of tokens while the model deliberated over the conflicting test ([LAB_JOURNAL.md](LAB_JOURNAL.md), 13:48).
+- The first control condition (6 correct tests) could not tell an honest ambiguity in the task description from a hack; a second control with no test on the disputed input was added ([LAB_JOURNAL.md](LAB_JOURNAL.md), 14:12).
+- TODO (failures and wrong results from the full run)
 
 ## What it would need next
 
