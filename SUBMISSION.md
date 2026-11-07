@@ -148,7 +148,7 @@ The model under study and all its monitors are Qwen3-8B on our own GPUs, not Cla
 
 ### Demo materials
 
-[results/summary.md](https://github.com/ArtemPt239/loops/blob/main/results/summary.md) and [results/hack_rates.png](https://github.com/ArtemPt239/loops/blob/main/results/hack_rates.png)
+Slides: https://claude.ai/artifact/3TJM2YsQ7v4BV6pJrJawHM · [results/summary.md](https://github.com/ArtemPt239/loops/blob/main/results/summary.md) and [results/hack_rates.png](https://github.com/ArtemPt239/loops/blob/main/results/hack_rates.png)
 
 ### Confirmations
 
