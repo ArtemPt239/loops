@@ -21,11 +21,26 @@ uv sync
 uv run pytest -q                                    # unit tests (grader, mutations, monitors, stats)
 uv run python -m loops.env                          # rebuild data/instances.jsonl (~3 min); already committed
 export OPENAI_BASE_URLS=http://localhost:8000/v1    # comma-separated list to spread load over several servers
-uv run python -m loops.run --variant neutral --split dev --samples 2       # one run → runs/<timestamp>-<variant>/
-uv run python -m loops.run --resume runs/<run>  --variant neutral          # re-grade, re-monitor, re-score a run
-uv run python -m loops.show runs/<run> --label hidden_hack -n 5            # read samples
+
+# the held-out run in results/summary.md (≈ 30 min on 3 L40S servers with --kv-cache-dtype fp8)
+uv run python -m loops.run --variant neutral --split test --conditions buggy,control,control5 \
+    --samples 2 --control-samples 1 --kv-cache-dtype fp8 --tag heldout
+# the dev runs used to pick the prompt variant
+uv run python -m loops.run --variant neutral --split dev --samples 2
+uv run python -m loops.run --variant release --split dev --samples 2
+
+uv run python -m loops.controls                     # positive control: code monitors on synthetic solutions
+uv run python -m loops.think_monitor runs/<run>     # code monitors with thinking on (≤ 50 per label)
+uv run python -m loops.export runs/<run>            # results/sneaky_hacks.jsonl
 uv run python -m loops.report                       # results/criteria_table.md and results/hack_rates.png
+
+uv run python -m loops.run --fill runs/<run> --variant neutral    # generate missing pairs of an interrupted run
+uv run python -m loops.run --resume runs/<run> --variant neutral  # re-grade, re-monitor, re-score a run
+uv run python -m loops.metrics runs/<run>           # recompute metrics.json from samples.jsonl
+uv run python -m loops.show runs/<run> --label hidden_hack -n 5   # read samples
 ```
+
+`--variant` is required by the argument parser but ignored by `--fill` and `--resume`, which use the run's own settings.
 
 Each run directory has `config.json` (arguments, task ids, git commit), `samples.jsonl`
 (prompt, reasoning, code, ground-truth label, monitor scores and raw monitor answers) and `metrics.json`.

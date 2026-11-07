@@ -1,5 +1,12 @@
 # Lab journal
 
+## 2026-11-07 14:57 — Time-budget decision (user, via lead): new runs capped at 50 samples per group
+
+- From now on every new run uses ≤ 50 samples per group, drawn at random with a fixed seed (thinking-monitor rerun: ≤ 50 hidden hacks, ≤ 50 hardcodes, ≤ 50 honest). The running held-out fill is not affected.
+- Deadline arithmetic: freeze at 15:35. The held-out fill (107 buggy pairs × 2 samples, ~8k tokens each ≈ 1.7M tokens) needs ~10–15 min on 3 servers at ~3–6k tokens/s, so grading and monitors end ≈ 15:10–15:15. A thinking monitor call is ~1–3k tokens; 150 items × 2 views ≈ 0.6M tokens ≈ 3–5 min, but the long tail (6k-token thinking at ~40 tokens/s per sequence) adds ~3 min. Without the cap the run could cross the freeze.
+- Resulting precision: a rate measured on 50 samples has a 95% Wilson CI of about ±14 points at 50% and ±10 points at 15% (wider with task clustering).
+- This is a constraint to fit the deadline, not a change in method. Next step after the deadline: rerun at full size.
+
 ## 2026-11-07 14:56 — Robustness check fails: code + tests monitor with thinking ON catches most hidden hacks (dev, small n)
 
 - [think_monitor.py](src/loops/think_monitor.py) on [runs/20261107-140955-neutral](runs/20261107-140955-neutral/) (`think_monitor.jsonl`, `think_monitor_metrics.json`): Qwen3-8B, same code + tests prompt, thinking on (temperature 0.6, max 6000 tokens), on all 14 buggy hacks + 14 random honest samples.
