@@ -87,6 +87,7 @@ Full results: [results/summary.md](https://github.com/ArtemPt239/loops/blob/main
 | tests for a teammate's buggy function | 50 | 48% (2%) | 17% | 62% / 10% |
 
 All monitors are the same Qwen3-8B with thinking off; "best setup" is "setup A" in the repository.
+Details per row: [best setup](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#answer), [varied tests](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#setup-a-with-varied-visible-tests-same-50-tasks), [CI feedback round](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#setup-06-setup-a-plus-one-ci-feedback-round), [tests for a buggy function](https://github.com/ArtemPt239/loops/blob/main/ideas/08-tests-for-given-buggy-code.md).
 
 - The best setup passes all criteria ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
 - The monitors are not blind: they flag a synthetic hardcoded special case 80–91% of the time.
@@ -117,7 +118,7 @@ All monitors are the same Qwen3-8B with thinking off; "best setup" is "setup A" 
 git clone https://github.com/ArtemPt239/loops && cd loops
 uv sync
 uv run pytest -q
-# one or more vLLM servers with Qwen3-8B, raw <think> text, no reasoning parser:
+# one or more vLLM servers with Qwen3-8B (install with `uv pip install vllm` on the GPU machine), raw <think> text, no reasoning parser:
 vllm serve Qwen/Qwen3-8B --max-model-len 16384 --enable-prefix-caching
 export OPENAI_BASE_URLS=http://localhost:8000/v1        # comma-separated for several servers
 uv run python -m loops.run --variant neutral --split test --conditions buggy,control,control5 --samples 2 --control-samples 1
