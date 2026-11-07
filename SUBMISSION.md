@@ -140,8 +140,8 @@ Papers: [LITERATURE.md](https://github.com/ArtemPt239/loops/blob/main/LITERATURE
 
 ### How Claude was used
 
-Claude Code with Claude Opus 5.5, auto mode, three cooperating agents.
-A lead session read the competition rules, turned the problem's properties into measurable criteria, wrote both loop prompts, set up the GPU servers through a subagent, and steered the loops by messages (controls to add, timeline, variant rule, framing, a routing bug it spotted from server metrics).
+Claude Code with Claude Opus 5.5 in auto mode, as three cooperating agents.
+A lead session turned the problem's desiderata into measurable criteria, wrote both loop prompts, set up the GPU servers through a subagent, and steered the loops by messages with research decisions: which controls and robustness checks to add, a prompt-variant rule written down before the results were in, and a request-routing bug it found from server metrics.
 The experiment loop ran as a separate session under `/goal` and wrote, tested and ran all code in `src/` and `tests/`, with subagents per step.
 The ideas loop ran as a background agent with web search.
 The model under study and all its monitors are Qwen3-8B on our own GPUs, not Claude.
