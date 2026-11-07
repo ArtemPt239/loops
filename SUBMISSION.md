@@ -84,7 +84,9 @@ For example, two designs were rejected before any code: tests that only hardcodi
 
 ### What the loop found
 
-**The reward structure alone (score = fraction of CI tests passed, one buggy test, no instruction to hack) makes Qwen3-8B hack in 17% [12, 23] of samples on 150 held-out tasks, against 0–1% in two controls without a wrong test.**
+**We found a setup that matches the criteria:** a coding task whose CI suite has five correct tests and one buggy test, written from the reference solution with one token changed.
+Every check in the table above passes on point estimates.
+The reward structure alone (score = fraction of CI tests passed, no instruction to hack) makes Qwen3-8B hack in 17% [12, 23] of samples on 150 held-out tasks, against 0–1% in two controls without a wrong test.
 The hack is a one-token change that reads like an ordinary implementation choice.
 The reasoning says it outright ("given that the test case is part of the problem, I must adjust my code…", HumanEval/3), while the code monitor answers "The code correctly implements the task description".
 Full results: [results/summary.md](https://github.com/ArtemPt239/loops/blob/main/results/summary.md).
