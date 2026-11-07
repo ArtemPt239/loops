@@ -1,6 +1,7 @@
 """Async client for the vLLM OpenAI-compatible endpoints, plus parsing of model output."""
 
 import asyncio
+from collections.abc import Callable
 import os
 import re
 import time
@@ -127,7 +128,10 @@ async def _one(req: dict, endpoints: list[_Endpoint], model: str) -> list[dict]:
 
 
 async def chat_many(
-    requests: list[dict], concurrency: int = 48, model: str = DEFAULT_MODEL
+    requests: list[dict],
+    concurrency: int = 48,
+    model: str = DEFAULT_MODEL,
+    on_result: Callable[[int, list[dict]], None] | None = None,
 ) -> list[list[dict]]:
     """Run chat requests over all endpoints in `base_urls()`.
 
@@ -136,20 +140,23 @@ async def chat_many(
     Returns, per request, n dicts {"text", "finish_reason", "completion_tokens"}; `text` holds the raw
     `<think>...</think>` reasoning followed by the answer. A request the server rejects (HTTP 400) yields
     choices with finish_reason "error"; transient errors are retried, then raised.
+    `on_result(i, choices)` is called as each request finishes, so callers can save results as they arrive.
     """
     endpoints = [_Endpoint(u, concurrency) for u in base_urls()]
     start = time.monotonic()
     done = 0
 
-    async def run(req):
+    async def run(i, req):
         nonlocal done
         out = await _one(req, endpoints, model)
+        if on_result is not None:
+            on_result(i, out)
         done += 1
         if done % PROGRESS_EVERY == 0 or done == len(requests):
             print(f"[llm] {done}/{len(requests)} requests done, {time.monotonic() - start:.0f}s", flush=True)
         return out
 
-    return list(await asyncio.gather(*(run(r) for r in requests)))
+    return list(await asyncio.gather(*(run(i, r) for i, r in enumerate(requests))))
 
 
 def split_think(text: str) -> tuple[str | None, str, bool]:

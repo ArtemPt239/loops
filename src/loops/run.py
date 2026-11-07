@@ -46,9 +46,39 @@ def _git_commit() -> str:
         return ""
 
 
+def _rows(inst, cond, variant, test_file, messages, choices) -> list[dict]:
+    rows = []
+    for k, ch in enumerate(choices):
+        reasoning, answer, closed = split_think(ch["text"])
+        truncated = ch["finish_reason"] == "length" or not closed
+        rows.append(
+            {
+                "task_id": inst.task_id,
+                "source": inst.source,
+                "condition": cond,
+                "variant": variant,
+                "sample_idx": k,
+                "mutation": inst.mutation,
+                "buggy_input": inst.visible_inputs[inst.buggy_index],
+                "buggy_expected_ref": inst.visible_ref[inst.buggy_index],
+                "buggy_expected_alt": inst.visible_alt[inst.buggy_index],
+                "prompt": messages,
+                "test_file": test_file,
+                "reasoning": reasoning,
+                "answer": answer,
+                "code": None if truncated else extract_code(answer, inst.entry_point),
+                "finish_reason": ch["finish_reason"],
+                "completion_tokens": ch.get("completion_tokens"),
+                "truncated": truncated,
+            }
+        )
+    return rows
+
+
 def generate(
-    insts, conditions, variant, samples, max_tokens, temperature, presence_penalty=0.0
+    insts, conditions, variant, samples, max_tokens, temperature, presence_penalty=0.0, out_path=None
 ) -> list[dict]:
+    """Samples for every (instance, condition); each finished request is appended to `out_path` at once."""
     requests, meta = [], []
     for inst in insts:
         mod = module_name(inst.entry_point)
@@ -67,34 +97,18 @@ def generate(
                 }
             )
             meta.append((inst, cond, test_file, messages))
-    results = asyncio.run(chat_many(requests, model=MODEL))
-    rows = []
-    for (inst, cond, test_file, messages), choices in zip(meta, results):
-        for k, ch in enumerate(choices):
-            reasoning, answer, closed = split_think(ch["text"])
-            truncated = ch["finish_reason"] == "length" or not closed
-            rows.append(
-                {
-                    "task_id": inst.task_id,
-                    "source": inst.source,
-                    "condition": cond,
-                    "variant": variant,
-                    "sample_idx": k,
-                    "mutation": inst.mutation,
-                    "buggy_input": inst.visible_inputs[inst.buggy_index],
-                    "buggy_expected_ref": inst.visible_ref[inst.buggy_index],
-                    "buggy_expected_alt": inst.visible_alt[inst.buggy_index],
-                    "prompt": messages,
-                    "test_file": test_file,
-                    "reasoning": reasoning,
-                    "answer": answer,
-                    "code": None if truncated else extract_code(answer, inst.entry_point),
-                    "finish_reason": ch["finish_reason"],
-                    "completion_tokens": ch.get("completion_tokens"),
-                    "truncated": truncated,
-                }
-            )
-    return rows
+    by_request: dict[int, list[dict]] = {}
+
+    def save(i, choices):
+        inst, cond, test_file, messages = meta[i]
+        by_request[i] = _rows(inst, cond, variant, test_file, messages, choices)
+        if out_path is not None:
+            with open(out_path, "a") as f:
+                for r in by_request[i]:
+                    f.write(json.dumps(r) + "\n")
+
+    asyncio.run(chat_many(requests, model=MODEL, on_result=save))
+    return [r for i in range(len(requests)) for r in by_request[i]]
 
 
 def grade_all(rows: list[dict], by_id: dict[str, Instance], workers: int = 8) -> None:
@@ -172,6 +186,7 @@ def main(argv=None):
         args.max_tokens,
         args.temperature,
         args.presence_penalty,
+        out_path=run_dir / "samples.jsonl",
     )
     write_jsonl(run_dir / "samples.jsonl", rows)
     print(f"generated {len(rows)} in {time.time() - t0:.0f}s", flush=True)
