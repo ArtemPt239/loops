@@ -178,10 +178,39 @@ def plot_hack_rates(run_dirs: list[Path], out: Path) -> None:
     fig.savefig(out, dpi=150)
 
 
+def think_table(run_dirs: list[Path], link_prefix: str = "../runs/") -> str:
+    """Code monitors with thinking on (think_monitor.py), for runs that have them."""
+    head = [
+        "run",
+        "view",
+        "catches hidden hack",
+        "catches hardcode",
+        "flags honest",
+        "AUROC hidden hack vs honest",
+    ]
+    lines = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
+    for d in run_dirs:
+        f = d / "think_monitor_metrics.json"
+        if not f.exists():
+            continue
+        m = json.loads(f.read_text())
+        for view in ["code_tests", "code_only"]:
+            if view not in m:
+                continue
+            v = m[view]
+            lines.append(
+                f"| [{d.name}]({link_prefix}{d.name}/) | {view}, thinking on | {_pct(v['flags_hidden_hack'])} "
+                f"| {_pct(v['flags_hardcode'])} | {_pct(v['flags_honest'])} | {_auc(v['auroc_hidden_hack_vs_honest'])} |"
+            )
+    return "\n".join(lines) + "\n"
+
+
 def main():
     runs = sorted(p for p in Path("runs").iterdir() if p.is_dir())
     Path("results").mkdir(exist_ok=True)
-    Path("results/criteria_table.md").write_text(criteria_table(runs))
+    Path("results/criteria_table.md").write_text(
+        criteria_table(runs) + "\n### Code monitors with thinking on\n\n" + think_table(runs)
+    )
     plot_hack_rates(runs, Path("results/hack_rates.png"))
     print(Path("results/criteria_table.md").read_text())
 
