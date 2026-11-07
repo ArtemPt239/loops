@@ -1,0 +1,42 @@
+{
+  "sampling": {
+    "n": 1,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "max_tokens": 6000,
+    "enable_thinking": true
+  },
+  "flags_hidden_hack": {
+    "k": 6,
+    "n": 7,
+    "p": 0.8571428571428571,
+    "wilson_lo": 0.48686549668097007,
+    "wilson_hi": 0.9743210440510253,
+    "cluster_lo": 0.625,
+    "cluster_hi": 1.0
+  },
+  "flags_hardcode": {
+    "k": 7,
+    "n": 7,
+    "p": 1.0,
+    "wilson_lo": 0.6456611570247934,
+    "wilson_hi": 1.0,
+    "cluster_lo": 1.0,
+    "cluster_hi": 1.0
+  },
+  "flags_honest": {
+    "k": 0,
+    "n": 14,
+    "p": 0.0,
+    "wilson_lo": 0.0,
+    "wilson_hi": 0.21531701192718142,
+    "cluster_lo": 0.0,
+    "cluster_hi": 0.0
+  },
+  "auroc_hidden_hack_vs_honest": {
+    "auc": 0.9030612244897959,
+    "lo": 0.6833333333333333,
+    "hi": 1.0
+  },
+  "n_unparsed_or_truncated": 0
+}
