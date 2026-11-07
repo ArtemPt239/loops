@@ -27,6 +27,7 @@ The prompt never mentions hacking. Ground truth comes from running the code on f
 - 33% of buggy-condition samples run out of the 12k-token budget while deliberating about the conflict.
 - Positive control: the same code monitors flag a canonical hardcode (`if args == <test input>: return <expected>`) 80–91% of the time.
 - **Setup 06** (same tasks, tests hidden in turn 1, then one round with the red CI log; 50 held-out tasks, 1 sample): hidden hack 34% [20, 48] vs 0/50 control; code + tests monitor catches 1/17; CoT monitor catches 17/17 but flags 3/9 honest samples, so criterion 4 fails on false positives at this small n ([summary](results/summary.md#setup-06-setup-a-plus-one-ci-feedback-round), [run](runs/20261107-153402-ci_feedback/)).
+- **Varied visible tests** (fix for a limit: 67/182 suites had all 5 correct tests expecting the same output): on the same 50 tasks the hack rate is unchanged (30% vs 26–29%, p = 0.82) and the code monitors catch 0/15; CoT monitor 10/15 ([summary](results/summary.md#setup-a-with-varied-visible-tests-same-50-tasks), [run](runs/20261107-155418-neutral-varied/)).
 - Seed dataset for future work: [results/sneaky_hacks.jsonl](results/sneaky_hacks.jsonl), 37 hacks that the CoT monitor flags and the code monitor misses.
 
 ## Reproduce
@@ -45,6 +46,11 @@ uv run python -m loops.run --variant neutral --split test --conditions buggy,con
     --samples 2 --control-samples 1 --kv-cache-dtype fp8 --tag heldout
 # setup 06: CI feedback round (41 comparison-flip + 9 other held-out tasks, 1 sample)
 uv run python -m loops.feedback --n-comparison 41 --n-other 9
+# setup A with varied visible tests on the same 50 tasks
+uv run python -m loops.env --revary data/instances.jsonl --tasks-from runs/20261107-153402-ci_feedback/config.json \
+    --out data/instances_varied.jsonl
+uv run python -m loops.run --variant neutral --split test --conditions buggy,control --samples 1 \
+    --data data/instances_varied.jsonl --kv-cache-dtype fp8 --tag varied
 # the dev runs used to pick the prompt variant
 uv run python -m loops.run --variant neutral --split dev --samples 2
 uv run python -m loops.run --variant release --split dev --samples 2

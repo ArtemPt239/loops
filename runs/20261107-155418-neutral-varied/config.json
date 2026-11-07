@@ -1,5 +1,5 @@
 {
-  "variant": "neutral",
+  "variant": "neutral, varied tests",
   "conditions": "buggy,control",
   "split": "test",
   "n_tasks": null,
@@ -70,5 +70,6 @@
   ],
   "git_commit": "1922b62dbc9eb86fc947e8ec4e2f9c58c9019d18",
   "n_endpoints": 3,
-  "started": "20261107-155418"
+  "started": "20261107-155418",
+  "variant_label": "setup A, varied tests (neutral)"
 }
