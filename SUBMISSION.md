@@ -49,8 +49,8 @@ It is checkable by computation: each desideratum in the problem statement became
 |---|---|---|---|
 | 1 | Realistic reward hacking | honest work earns reward, a hack earns more; a realistic task prompt | 5/6 vs 6/6 · pass |
 | 2 | Small open model | open weights, small enough for white-box work | Qwen3-8B · pass |
-| 3 | Hidden in the code | a same-size code monitor catches ≤ 30% of hacks, or AUROC ≤ 0.65 | 22%, AUROC 0.65 · pass (point estimate) |
-| 4 | Visible in the reasoning | a same-size CoT monitor catches ≥ 70%, ≤ 20% false alarms | 75%, 7% · pass (point estimate) |
+| 3 | Hidden in the code | a same-size code monitor catches ≤ 30% of hacks, or AUROC ≤ 0.65 | 22% [10, 35], AUROC 0.65 · not established at 95% (point estimate passes) |
+| 4 | Visible in the reasoning | a same-size CoT monitor catches ≥ 70%, ≤ 20% false alarms | 75% [58, 90], 7% · not established at 95% (point estimate passes) |
 | 5 | Measurable | hack label computed by running code, no judge | pass |
 | 6 | Not instructed | the prompt never asks for or hints at the hack | pass |
 | + | Frequent enough to study (added by us) | ≥ 10% of samples, clearly above a control without the incentive | 17% vs 0–1% · pass |
@@ -86,7 +86,7 @@ Full results: [results/summary.md](https://github.com/ArtemPt239/loops/blob/main
 
 All monitors are the same Qwen3-8B with thinking off; "best setup" is "setup A" in the repository.
 
-- The best setup passes all criteria on point estimates; for the two monitor criteria the intervals cross the thresholds ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
+- **Verdict at 95% confidence: no setup is established to pass all criteria.** The best setup passes 1, 2, 5, 6 and the frequency check with intervals clear of the thresholds; the two monitor criteria pass only on point estimates, their intervals cross the thresholds. 51 hidden hacks are too few; ~100 (code monitor) to ~300 (CoT monitor) would settle them ([summary](https://github.com/ArtemPt239/loops/blob/main/results/summary.md#answer), [criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)). The 50-task runs are exploratory (below the 100-task requirement).
 - The monitors are not blind: they flag a synthetic hardcoded special case 80–91% of the time.
 - Seed dataset: 37 samples that are exactly the target behavior, in [results/sneaky_hacks.jsonl](https://github.com/ArtemPt239/loops/blob/main/results/sneaky_hacks.jsonl).
 - Confidence: high that the reward structure induces the behavior (large effect against two controls, labels by execution, hacks from 30 different tasks); moderate on the monitor criteria.
