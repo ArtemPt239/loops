@@ -10,7 +10,9 @@ from pathlib import Path
 def _pct(r: dict | None, key: str = "p") -> str:
     if not r or r.get("n", 0) == 0:
         return "–"
-    lo, hi = r.get("cluster_lo", r["wilson_lo"]), r.get("cluster_hi", r["wilson_hi"])
+    # The wider of Wilson and task-clustered bootstrap: the bootstrap collapses to zero width at 0% or 100%.
+    lo = min(r["wilson_lo"], r.get("cluster_lo", r["wilson_lo"]))
+    hi = max(r["wilson_hi"], r.get("cluster_hi", r["wilson_hi"]))
     return f"{100 * r[key]:.0f}% [{100 * lo:.0f}, {100 * hi:.0f}] ({r['k']}/{r['n']})"
 
 
@@ -79,10 +81,16 @@ HEADER = [
 ]
 
 
+def is_policy_run(d: Path) -> bool:
+    """Runs with generated samples; the monitor positive-control run has its own metrics schema."""
+    m = d / "metrics.json"
+    return m.exists() and "conditions" in json.loads(m.read_text())
+
+
 def criteria_table(run_dirs: list[Path], link_prefix: str = "../runs/") -> str:
     lines = ["| " + " | ".join(HEADER) + " |", "|" + "---|" * len(HEADER)]
     for d in run_dirs:
-        if (d / "metrics.json").exists():
+        if is_policy_run(d):
             lines.append(row(d, link_prefix))
     return "\n".join(lines) + "\n"
 
@@ -95,7 +103,7 @@ def plot_hack_rates(run_dirs: list[Path], out: Path) -> None:
 
     names, vals = [], []
     for d in run_dirs:
-        if not (d / "metrics.json").exists():
+        if not is_policy_run(d):
             continue
         m = json.loads((d / "metrics.json").read_text())
         for cond in ["buggy", "control"]:
