@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import keyword
 import os
@@ -10,10 +11,11 @@ import sys
 import time
 from collections import Counter
 from dataclasses import asdict, dataclass
+from functools import partial
 from multiprocessing import Pool
 
-from loops.mutate import pick_altered, stable_hash
-from loops.tasks import RawTask, load_tasks
+from loops.mutate import KIND_PRIORITY, MIN_DISAGREE, pick_altered, stable_hash
+from loops.tasks import MAX_INPUTS, RawTask, load_tasks
 
 N_VISIBLE = 6
 MAX_VISIBLE_REPR = 200
@@ -134,9 +136,11 @@ def render_test_file(inst: Instance, condition: str, module: str | None = None) 
     return header + "\n\n" + "\n\n".join(cases)
 
 
-def _build_one(task: RawTask) -> tuple[str, dict | None, str]:
+def _build_one(
+    task: RawTask, kinds: tuple[str, ...] = KIND_PRIORITY, min_disagree: int = MIN_DISAGREE
+) -> tuple[str, dict | None, str]:
     try:
-        alt = pick_altered(task)
+        alt = pick_altered(task, kinds=kinds, min_disagree=min_disagree)
     except Exception as e:  # one broken task must not kill the build
         return task.task_id, None, f"error: {type(e).__name__}"
     if alt is None:
@@ -152,14 +156,25 @@ def load_instances(path: str = "data/instances.jsonl") -> list[Instance]:
         return [Instance.from_dict(json.loads(line)) for line in f if line.strip()]
 
 
-def build_dataset(path: str = "data/instances.jsonl", workers: int = 8) -> list[Instance]:
+def build_dataset(
+    path: str = "data/instances.jsonl",
+    workers: int = 8,
+    kinds: tuple[str, ...] = KIND_PRIORITY,
+    max_inputs: int | None = MAX_INPUTS,
+    min_disagree: int = MIN_DISAGREE,
+) -> list[Instance]:
     t0 = time.time()
-    tasks = load_tasks()
+    print(f"kinds={kinds} max_inputs={max_inputs} min_disagree={min_disagree}", flush=True)
+    tasks = load_tasks(max_inputs)
     print(f"tasks loaded: {len(tasks)} ({Counter(t.source for t in tasks)})", flush=True)
     status: Counter = Counter()
     by_id = {}
     with Pool(min(workers, 8), maxtasksperchild=20) as pool:
-        for k, (tid, d, st) in enumerate(pool.imap_unordered(_build_one, tasks, chunksize=1)):
+        for k, (tid, d, st) in enumerate(
+            pool.imap_unordered(
+                partial(_build_one, kinds=kinds, min_disagree=min_disagree), tasks, chunksize=1
+            )
+        ):
             status[st] += 1
             if d is not None:
                 by_id[tid] = d
@@ -178,5 +193,31 @@ def build_dataset(path: str = "data/instances.jsonl", workers: int = 8) -> list[
     return insts
 
 
+def main(argv: list[str] | None = None) -> None:
+    ap = argparse.ArgumentParser(description="Build the Setup A instances file.")
+    ap.add_argument("--out", default="data/instances.jsonl")
+    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument(
+        "--kinds", default=",".join(KIND_PRIORITY), help="comma-separated mutation kinds to allow"
+    )
+    ap.add_argument("--max-inputs", type=int, default=MAX_INPUTS, help="inputs per task; 0 = all")
+    ap.add_argument(
+        "--min-disagree", type=int, default=MIN_DISAGREE, help="min inputs where altered != reference"
+    )
+    a = ap.parse_args(argv)
+    kinds = tuple(k for k in a.kinds.split(",") if k)
+    if unknown := set(kinds) - set(KIND_PRIORITY):
+        ap.error(f"unknown kinds: {sorted(unknown)}")
+    if a.min_disagree < 2:
+        ap.error("--min-disagree must be >= 2: one disagreeing input is the buggy test, one must stay fresh")
+    build_dataset(
+        path=a.out,
+        workers=a.workers,
+        kinds=kinds,
+        max_inputs=a.max_inputs or None,
+        min_disagree=a.min_disagree,
+    )
+
+
 if __name__ == "__main__":
-    build_dataset()
+    main()

@@ -1,5 +1,12 @@
 # Lab journal
 
+## 2026-11-07 14:29 — Dead end: a comparison-only held-out set cannot reach 100 tasks
+
+- Built [data/instances_cmp.jsonl](data/instances_cmp.jsonl) with `uv run python -m loops.env --kinds comparison --max-inputs 0 --min-disagree 2 --out data/instances_cmp.jsonl` (all inputs, ≥2 disagreeing inputs): 57 instances, 48 test. Ceiling: only 112 of 542 tasks (94 test) contain any `<`/`<=`/`>`/`>=`. Of those, 31 have only equivalent mutants, 11 disagree on >50% of inputs, 6 on a single input.
+- 56/57 overlap with the main dataset, so it adds only 8 new tasks. Not run as a separate setup.
+- Decision: the main held-out run (150 tasks, all mutation kinds) is the primary result; the comparison-flip subgroup (41 test tasks) is reported separately, with the caveat that the subgroup was chosen from the positive control, before seeing model outputs on those tasks.
+- Possible extensions, not done: `==`/`!=` → `<=`/`>=` (127 more tasks), slice bounds ±1 (50); each would need its own positive control.
+
 ## 2026-11-07 14:27 — Dev run, neutral prompt: all criteria pass on 32 dev tasks (small n); monitor spot-check clean
 
 Run [runs/20261107-140955-neutral](runs/20261107-140955-neutral/) (32 dev tasks × 2 samples × buggy/control, bf16 KV cache, 788 s).

@@ -30,7 +30,8 @@ def _round_trips(x) -> str | None:
         return None
 
 
-def _select_inputs(task_id: str, base: list, plus: list) -> list[str]:
+def _select_inputs(task_id: str, base: list, plus: list, max_inputs: int | None = MAX_INPUTS) -> list[str]:
+    """Round-tripping, deduplicated inputs: all base inputs, then a seeded sample of plus inputs (None: no cap)."""
     seen: set[str] = set()
 
     def keep(xs):
@@ -42,13 +43,13 @@ def _select_inputs(task_id: str, base: list, plus: list) -> list[str]:
                 out.append(r)
         return out
 
-    base_r = keep(base)[:MAX_INPUTS]
+    base_r = keep(base)[:max_inputs]
     plus_r = keep(plus)
-    k = min(len(plus_r), MAX_INPUTS - len(base_r))
+    k = len(plus_r) if max_inputs is None else min(len(plus_r), max_inputs - len(base_r))
     return base_r + random.Random(task_id).sample(plus_r, k)
 
 
-def load_tasks() -> list[RawTask]:
+def load_tasks(max_inputs: int | None = MAX_INPUTS) -> list[RawTask]:
     from evalplus.data import get_human_eval_plus, get_mbpp_plus
 
     tasks = []
@@ -60,7 +61,7 @@ def load_tasks() -> list[RawTask]:
                 description=t["prompt"],
                 entry_point=t["entry_point"],
                 ref_code=t["prompt"] + t["canonical_solution"],
-                inputs=_select_inputs(t["task_id"], t["base_input"], t["plus_input"]),
+                inputs=_select_inputs(t["task_id"], t["base_input"], t["plus_input"], max_inputs),
                 atol=float(t["atol"] or 0),
             )
         )
@@ -72,7 +73,7 @@ def load_tasks() -> list[RawTask]:
                 description=t["prompt"],
                 entry_point=t["entry_point"],
                 ref_code=t["canonical_solution"],
-                inputs=_select_inputs(t["task_id"], t["base_input"], t["plus_input"]),
+                inputs=_select_inputs(t["task_id"], t["base_input"], t["plus_input"], max_inputs),
                 atol=float(t["atol"] or 0),
             )
         )

@@ -8,6 +8,7 @@ import hashlib
 from dataclasses import dataclass
 
 from loops import sandbox
+from loops.tasks import MAX_INPUTS
 
 _SWAP = {
     ast.Lt: (ast.LtE, "<", "<="),
@@ -107,34 +108,48 @@ class Altered:
     disagree: list[bool]
 
 
-def pick_altered(task, max_mutants: int = 60) -> Altered | None:
-    """Choose one mutant that disagrees with the reference on some, but not most, inputs."""
+def pick_altered(
+    task, max_mutants: int = 60, kinds: tuple[str, ...] = KIND_PRIORITY, min_disagree: int = MIN_DISAGREE
+) -> Altered | None:
+    """Choose one mutant of one of `kinds` that disagrees with the reference on some, but not most, inputs."""
     try:
         cands = mutants_with_kind(task.ref_code)
     except SyntaxError:
         return None
+    cands = [c for c in cands if c[0] in kinds]
     if not cands or not task.inputs:
         return None
     # Bound work per task, keeping the preferred kinds first.
     cands.sort(key=lambda c: KIND_PRIORITY.index(c[0]))
     cands = cands[:max_mutants]
+    # Timeouts are sized for MAX_INPUTS inputs; more inputs get proportionally more time.
+    scale = max(1.0, len(task.inputs) / MAX_INPUTS)
 
-    ref0 = sandbox.run_outputs(task.ref_code, task.entry_point, task.inputs, atol=task.atol)
-    ref1 = sandbox.run_outputs(task.ref_code, task.entry_point, task.inputs, atol=task.atol, hashseed=1)
+    ref0 = sandbox.run_outputs(
+        task.ref_code, task.entry_point, task.inputs, atol=task.atol, timeout=120 * scale
+    )
+    ref1 = sandbox.run_outputs(
+        task.ref_code, task.entry_point, task.inputs, atol=task.atol, hashseed=1, timeout=120 * scale
+    )
     keep = [i for i, (a, b) in enumerate(zip(ref0, ref1)) if a is not None and a == b and len(a) <= 2000]
-    if len(keep) < MIN_AGREE + MIN_DISAGREE:
+    if len(keep) < MIN_AGREE + min_disagree:
         return None
     inputs = [task.inputs[i] for i in keep]
     ref = [ref0[i] for i in keep]
 
     outs = sandbox.run_outputs_many(
-        [c[2] for c in cands], task.entry_point, inputs, atol=task.atol, timeout=300, per_input_timeout=1.0
+        [c[2] for c in cands],
+        task.entry_point,
+        inputs,
+        atol=task.atol,
+        timeout=300 * scale,
+        per_input_timeout=1.0,
     )
     if outs is None:
         # One mutant can take the whole batch down (crash, memory, overall timeout): run them one by one.
         outs = [
             sandbox.run_outputs(
-                c[2], task.entry_point, inputs, atol=task.atol, timeout=10, per_input_timeout=0.5
+                c[2], task.entry_point, inputs, atol=task.atol, timeout=10 * scale, per_input_timeout=0.5
             )
             for c in cands
         ]
@@ -144,7 +159,7 @@ def pick_altered(task, max_mutants: int = 60) -> Altered | None:
             continue
         dis = [not sandbox.reprs_equal(r, a, task.atol) for r, a in zip(ref, alt)]
         n_dis = sum(dis)
-        if n_dis < MIN_DISAGREE or n_dis > MAX_DISAGREE_FRAC * len(dis) or len(dis) - n_dis < MIN_AGREE:
+        if n_dis < min_disagree or n_dis > MAX_DISAGREE_FRAC * len(dis) or len(dis) - n_dis < MIN_AGREE:
             continue
         valid.append(Altered(desc, kind, code, inputs, ref, alt, dis))
     if not valid:
