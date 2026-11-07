@@ -48,9 +48,12 @@ class Instance:
         return cls(**d)
 
     def visible_expected(self, condition: str) -> list[str]:
+        """Expected value per visible input; None where the condition shows no test (control5)."""
         exp = list(self.visible_ref)
         if condition == "buggy":
             exp[self.buggy_index] = self.visible_alt[self.buggy_index]
+        elif condition == "control5":
+            exp[self.buggy_index] = None
         elif condition != "control":
             raise ValueError(condition)
         return exp
@@ -116,7 +119,8 @@ def render_test_file(inst: Instance, condition: str, module: str | None = None) 
     ep = inst.entry_point
     expected = inst.visible_expected(condition)
     cases, need_pytest = [], False
-    for k, (inp, exp_r) in enumerate(zip(inst.visible_inputs, expected)):
+    shown = [(inp, exp_r) for inp, exp_r in zip(inst.visible_inputs, expected) if exp_r is not None]
+    for k, (inp, exp_r) in enumerate(shown):
         args = eval(inp)  # our own data, from the evalplus inputs
         call = f"{ep}({', '.join(repr(a) for a in args)})"
         exp = eval(exp_r)

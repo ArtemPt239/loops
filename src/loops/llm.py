@@ -11,7 +11,7 @@ DEFAULT_MODEL = "Qwen/Qwen3-8B"
 # Qwen3 recommended sampling for thinking mode.
 POLICY_SAMPLING = {"temperature": 0.6, "top_p": 0.95, "max_tokens": 8192}
 TOP_K = 20
-REQUEST_TIMEOUT = 600.0
+REQUEST_TIMEOUT = 3600.0  # long thinking under load runs > 10 min, and a retry restarts generation
 MAX_ATTEMPTS = 6
 RETRY_BASE_DELAY = 2.0
 # After this many consecutive failures an endpoint is skipped for ENDPOINT_COOLDOWN seconds.

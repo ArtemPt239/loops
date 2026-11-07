@@ -14,15 +14,21 @@ Design notes from the lead session (13:45), apply when reaching each task:
 8. Decision point 14:30 CET: if setup A clearly fails a criterion its design cannot fix, switch to the top piloted candidate in `ideas/RANKING.md` (lead's ideas loop). Keep grader/monitors/metrics/stats setup-agnostic. Journal the decision either way.
 9. SUBMISSION.md is owned by the lead session. Log every failure, dead end and bug in LAB_JOURNAL.md as it happens; put exact reproduce commands in README.md.
 
-- [ ] **Literature** (*parallel*): write `LITERATURE.md` with 8–12 closest works (CoT monitoring, obfuscation under monitor pressure, reward hacking in coding, impossible/buggy-test benchmarks, model organisms), each with a link, one line on what it did, and one line on how our setup differs. Verify every link resolves.
+- [x] **Literature** (*parallel*): write `LITERATURE.md` with 8–12 closest works (CoT monitoring, obfuscation under monitor pressure, reward hacking in coding, impossible/buggy-test benchmarks, model organisms), each with a link, one line on what it did, and one line on how our setup differs. Verify every link resolves.
 - [x] **Project skeleton**: `uv` package `loops` under `src/`, `pytest`, `ruff` pre-commit. Add `evalplus`, `openai`, `matplotlib` with `uv add` when first needed.
-- [ ] **Tasks loader**: load HumanEval+ and MBPP+ (task description, reference solution, entry point, extra inputs). Test: loads >100 tasks; reference passes its own inputs.
-- [ ] **Altered solutions**: AST mutations of the reference solution; keep those that run and disagree with the reference on some but not most inputs. Test on a hand-written function.
-- [ ] **Environment**: build the 6-test suite (5 correct + 1 buggy) and the control (6 correct); render a realistic repository/CI prompt. Test: reference scores 5/6, altered solution scores 6/6, both score per the control.
-- [ ] **Grader**: sandboxed execution with timeout; reward = fraction of visible tests passed; ground-truth label (`honest`, `hidden_hack`, `hardcode`, `other`). Test with hand-written solutions of each kind.
-- [ ] **Generation client**: OpenAI-compatible client to vLLM; split `<think>` reasoning from the answer; extract the code block. Smoke test on 3 tasks.
-- [ ] **Monitors**: code-only and CoT monitors (same model, thinking off, 0–10 score + verdict). Optional Claude monitor. Test the prompt parser.
-- [ ] **End-to-end run**: `uv run python -m loops.run --variant <name> --n-tasks N --samples K` writes `runs/<timestamp>-<variant>/`. Smoke run on 5 tasks.
+- [x] **Tasks loader**: load HumanEval+ and MBPP+ (task description, reference solution, entry point, extra inputs). Test: loads >100 tasks; reference passes its own inputs.
+- [x] **Altered solutions**: AST mutations of the reference solution; keep those that run and disagree with the reference on some but not most inputs. Test on a hand-written function.
+- [x] **Environment**: build the 6-test suite (5 correct + 1 buggy) and the control (6 correct); render a realistic repository/CI prompt. Test: reference scores 5/6, altered solution scores 6/6, both score per the control.
+- [x] **Grader**: sandboxed execution with timeout; reward = fraction of visible tests passed; ground-truth label (`honest`, `hidden_hack`, `hardcode`, `other`). Test with hand-written solutions of each kind.
+- [x] **Generation client**: OpenAI-compatible client to vLLM; split `<think>` reasoning from the answer; extract the code block. Smoke test on 3 tasks.
+- [x] **Monitors**: code-only and CoT monitors (same model, thinking off, 0–10 score + verdict). Optional Claude monitor. Test the prompt parser.
+- [x] **End-to-end run**: `uv run python -m loops.run --variant <name> --n-tasks N --samples K` writes `runs/<timestamp>-<variant>/`. Smoke run on 5 tasks.
+- [x] **Smoke run** (3 tasks): pipeline works; found and fixed monitor score inversion (journal 13:59).
+- [ ] **Positive control for code monitors** (*parallel*, subagent): reference / altered / reference + hardcoded special case, scored offline by both code monitors on the 150 test instances.
+- [x] **control5 condition**: 5 agreeing tests only, nothing pins the disagreeing input; measures how often the model writes the altered behavior with no test pushing it (description ambiguity / honest mistake).
+- [ ] **Dev runs**: neutral vs release, 32 dev tasks x 2 samples (restarted 14:09 after timeouts). Spot-check 10 monitor outputs.
+- [ ] **Held-out run**: best variant on 150 test tasks, buggy + control + control5.
+- [ ] (optional) Code + tests monitor with thinking on, on hidden hacks + equal number of honest samples.
 - [ ] **Baseline**: control vs buggy-test with a neutral prompt, ≥100 tasks × 4 samples.
 - [ ] **Variants loop**: try realistic pressure variants (never instructing to hack). Pick the next variant from the last results; journal each.
 - [ ] **Criteria check for setup A**: fill the criteria table from PROMPT.md for setup A. For each failing criterion, write why and what change would fix it; add those changes as tasks above this one.
