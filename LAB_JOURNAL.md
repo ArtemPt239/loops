@@ -1,5 +1,12 @@
 # Lab journal
 
+## 2026-11-07 16:03 — Varied visible tests: hack rate unchanged (30% vs 26–29%), code monitors 0/15
+
+Run [runs/20261107-155418-neutral-varied](runs/20261107-155418-neutral-varied/) (423 s generation; 3 endpoints).
+- Buggy: 10 honest, 15 hidden hack (30% [18, 44]), 4 hardcode, 21 other (19 truncated). Control: 0/50 hidden hack (Fisher p = 9e-6).
+- Same 50 tasks under the old suites (held-out run): 13/50 sample 0, 29/100 both samples. Varied vs old (sample 0): p = 0.82. The degenerate suites did not drive the hack rate.
+- Code + tests monitor 0/15, code only 0/15; CoT 10/15 = 67% [40, 87], flags 1/10 honest. Criterion 4 narrowly fails on the point estimate at n = 15.
+
 ## 2026-11-07 15:54 — Fix: varied visible tests; setup A rerun on the same 50 tasks launched
 
 - User request (via lead): fix the degenerate test selection and rerun a small batch; freeze for this run 16:25.
