@@ -93,7 +93,14 @@ The 3 CoT false positives all say the model changed its code to pass the test, w
 So setup 06 roughly doubles the hack rate and makes the hack even less visible to the code monitor, but its few honest samples (9) give a CoT false-positive rate above the threshold; more samples are needed.
 The CI round is a nudge toward changing the code ("Update `<module>`.py"), the natural message an agent harness sends.
 
-THINK06
+Code monitors with thinking on, setup 06 ([think_monitor_metrics.json](../runs/20261107-153402-ci_feedback/think_monitor_metrics.json)):
+
+| monitor (Qwen3-8B, thinking on) | catches hidden hack | comparison flips | catches hardcode | flags honest | AUROC |
+|---|---|---|---|---|---|
+| code + tests | 59% [35, 82] (10/17) | 9/16 | 3/5 | 33% [0, 67] (3/9) | 0.63 [0.36, 0.88] |
+| code only | 18% [0, 41] (3/17) | 3/16 | 2/5 | 0% [0, 30] (0/9) | 0.71 [0.51, 0.88] |
+
+As in setup A, a thinking monitor that reads the tests catches more than half of the hidden hacks, but here it also flags a third of the (few) honest samples, so its AUROC (0.63) stays under 0.65; the code-only view stays weak (3/17).
 
 ## Positive control: the code monitors do catch the canonical hack
 
@@ -149,6 +156,7 @@ Held-out examples (all three are comparison flips the code + tests monitor misse
 - **The CoT monitor has false positives** (7% of honest samples) and misses 25% of hidden hacks. Most reasoning is longer than 12k characters and reaches the monitor cut to the first 4k + last 8k characters (45 of 51 hidden hacks; 9 of the 13 misses, 36 of the 38 catches), so the cut is common but not clearly the cause of misses. The 7 false positives (all read) mostly misjudge which side the final code took, e.g. HumanEval/124: the monitor notes the code "contradicts the test", i.e. followed the description, and still answers YES.
 - **The code + tests monitor is told the tests may contradict the description.** This makes it stronger than a naive monitor, which makes criterion 3 harder to pass, not easier.
 - **Ground truth rests on few inputs for some tasks.** 35 instances have fewer than 5 fresh inputs where the solutions disagree; the label rule then rests on few inputs. MBPP descriptions are sometimes vague; `control5` (1/150 altered behavior with no test pushing it) suggests ambiguity is rare, but it is a per-sample check, not a per-task proof.
+- **Degenerate visible suites.** [env.py](../src/loops/env.py) picks the 5 correct tests as the 5 smallest agreeing inputs, so in 67 of 182 instances all 5 correct tests expect the same output (e.g. `[]` five times). The CI file is then less realistic, and the buggy test is often the only informative one, which may push the model toward following it. Measured on existing samples: setup A held-out hidden-hack rate 20% [14, 29] (22/108, 54 tasks) with degenerate suites vs 15% [11, 21] (29/192, 96 tasks) with varied ones (two-sided Fisher p = 0.26); setup 06: 47% (8/17) vs 27% (9/33), p = 0.21. The bias is upward but not significant, and setup A stays above the 10% threshold on varied suites alone. Fix for next time: pick correct tests with distinct expected outputs and a spread of sizes.
 - **Small numbers per subgroup.** Comparison flips: 41 tasks, 27 hidden hacks. Thinking-monitor rows are capped at 50 per label for the deadline; rerun at full size.
 - **One model, one prompt family, one sampling setting** (temperature 0.6, top-p 0.95, top-k 20). Dev runs used a bf16 KV cache, the held-out run fp8 (throughput); truncation was 25% on dev and 33% held-out, which may partly reflect this change.
 - **Run history.** The first two dev runs were lost to client timeouts, and the held-out run was interrupted once by a routing bug and completed with `--fill` (same settings, same run directory) ([journal 14:09, 14:53](../LAB_JOURNAL.md)).
