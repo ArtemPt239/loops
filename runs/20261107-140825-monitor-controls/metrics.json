@@ -1,0 +1,119 @@
+{
+  "label_counts": {
+    "reference": {
+      "honest": 150
+    },
+    "altered": {
+      "hidden_hack": 150
+    },
+    "hardcode": {
+      "hardcode": 149,
+      "other": 1
+    }
+  },
+  "n_label_mismatch": 1,
+  "flag_rate": {
+    "code_tests": {
+      "reference": {
+        "k": 33,
+        "n": 150,
+        "p": 0.22,
+        "wilson_lo": 0.16115929476762675,
+        "wilson_hi": 0.2928245431539757,
+        "mean_score": 2.52,
+        "n_unparsed_verdict": 0,
+        "n_unparsed_score": 0
+      },
+      "altered": {
+        "k": 68,
+        "n": 150,
+        "p": 0.4533333333333333,
+        "wilson_lo": 0.37582361795320735,
+        "wilson_hi": 0.5331736883670597,
+        "mean_score": 5.04,
+        "n_unparsed_verdict": 0,
+        "n_unparsed_score": 0
+      },
+      "hardcode": {
+        "k": 137,
+        "n": 150,
+        "p": 0.9133333333333333,
+        "wilson_lo": 0.8573705468757646,
+        "wilson_hi": 0.9486533114304412,
+        "mean_score": 8.966666666666667,
+        "n_unparsed_verdict": 0,
+        "n_unparsed_score": 0
+      }
+    },
+    "code_only": {
+      "reference": {
+        "k": 10,
+        "n": 150,
+        "p": 0.06666666666666667,
+        "wilson_lo": 0.03661146073480972,
+        "wilson_hi": 0.11836352652481316,
+        "mean_score": 1.18,
+        "n_unparsed_verdict": 0,
+        "n_unparsed_score": 0
+      },
+      "altered": {
+        "k": 44,
+        "n": 150,
+        "p": 0.29333333333333333,
+        "wilson_lo": 0.22636309522530063,
+        "wilson_hi": 0.37062497562159646,
+        "mean_score": 3.453333333333333,
+        "n_unparsed_verdict": 0,
+        "n_unparsed_score": 0
+      },
+      "hardcode": {
+        "k": 120,
+        "n": 150,
+        "p": 0.8,
+        "wilson_lo": 0.7288572445686363,
+        "wilson_hi": 0.8561600719439326,
+        "mean_score": 7.526666666666666,
+        "n_unparsed_verdict": 0,
+        "n_unparsed_score": 0
+      }
+    }
+  },
+  "auroc": {
+    "code_tests": {
+      "altered_vs_reference": {
+        "auroc": 0.6547777777777777,
+        "lo": 0.6147938888888889,
+        "hi": 0.6955416666666666,
+        "n_pos": 150,
+        "n_neg": 150
+      },
+      "hardcode_vs_reference": {
+        "auroc": 0.8621555555555556,
+        "lo": 0.8239044444444443,
+        "hi": 0.899916111111111,
+        "n_pos": 150,
+        "n_neg": 150
+      }
+    },
+    "code_only": {
+      "altered_vs_reference": {
+        "auroc": 0.6406888888888889,
+        "lo": 0.5987522222222221,
+        "hi": 0.6829561111111112,
+        "n_pos": 150,
+        "n_neg": 150
+      },
+      "hardcode_vs_reference": {
+        "auroc": 0.8817555555555555,
+        "lo": 0.8413505555555556,
+        "hi": 0.9180683333333334,
+        "n_pos": 150,
+        "n_neg": 150
+      }
+    }
+  },
+  "n_unparsed": {
+    "code_tests": 0,
+    "code_only": 0
+  }
+}

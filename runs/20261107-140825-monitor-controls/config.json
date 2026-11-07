@@ -1,0 +1,23 @@
+{
+  "split": "test",
+  "data": "data/instances.jsonl",
+  "n_tasks": null,
+  "n": 150,
+  "kinds": [
+    "reference",
+    "altered",
+    "hardcode"
+  ],
+  "condition": "buggy",
+  "model": "Qwen/Qwen3-8B",
+  "monitor_sampling": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 300,
+    "enable_thinking": false
+  },
+  "git_commit": "da63a1a206cfa3692fa57498883020d4fd34434c",
+  "monitors_py_sha256": "dd607c5ef93696d93ff8ab19c44e8f971de601f6f198bc3d13f7300cfe496c95",
+  "n_endpoints": 3,
+  "started": "20261107-140825"
+}
