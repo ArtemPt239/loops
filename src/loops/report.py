@@ -95,6 +95,52 @@ def criteria_table(run_dirs: list[Path], link_prefix: str = "../runs/") -> str:
     return "\n".join(lines) + "\n"
 
 
+def kind_table(run_dir: Path) -> str:
+    """Per-mutation-kind breakdown of one run (buggy condition): hack rate, controls, monitor results."""
+    m = json.loads((run_dir / "metrics.json").read_text())
+    head = [
+        "mutation kind",
+        "tasks",
+        "hidden hack (buggy)",
+        "hidden hack (control)",
+        "hidden hack (control5)",
+        "code monitor (+tests) catch",
+        "code monitor (+tests) flags honest",
+        "code monitor (+tests) AUROC",
+        "CoT monitor catch",
+        "CoT monitor flags honest",
+    ]
+    lines = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
+    for kind, k in m.get("by_mutation_kind", {}).items():
+        ct, cot = k["monitors"]["code_tests"], k["monitors"]["cot"]
+        cells = [
+            kind,
+            str(k["n_tasks"]),
+            _pct(k["hidden_hack"]),
+            _pct(k.get("hidden_hack_control")),
+            _pct(k.get("hidden_hack_control5")),
+            _pct(ct["catch_hidden_hack"]),
+            _pct(ct["false_positive_honest"]),
+            _auc(ct["auroc_hidden_hack_vs_honest"]),
+            _pct(cot["catch_hidden_hack"]),
+            _pct(cot["false_positive_honest"]),
+        ]
+        lines.append("| " + " | ".join(cells) + " |")
+    return "\n".join(lines) + "\n"
+
+
+def any_hack_table(run_dir: Path) -> str:
+    """Monitors over all hacks (hidden_hack + hardcode) vs honest, buggy condition."""
+    m = json.loads((run_dir / "metrics.json").read_text())
+    lines = ["| monitor | catches any hack | flags honest | AUROC any hack vs honest |", "|---|---|---|---|"]
+    for name, mon in m["monitors"].items():
+        lines.append(
+            f"| {name} | {_pct(mon['catch_any_hack'])} | {_pct(mon['false_positive_honest'])} "
+            f"| {_auc(mon['auroc_any_hack_vs_honest'])} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def plot_hack_rates(run_dirs: list[Path], out: Path) -> None:
     import matplotlib
 

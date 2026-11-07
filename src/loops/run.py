@@ -85,12 +85,15 @@ def generate(
     presence_penalty=0.0,
     out_path=None,
     control_samples=None,
+    only_pairs=None,
 ) -> list[dict]:
     """Samples for every (instance, condition); each finished request is appended to `out_path` at once."""
     requests, meta = [], []
     for inst in insts:
         mod = module_name(inst.entry_point)
         for cond in conditions:
+            if only_pairs is not None and (inst.task_id, cond) not in only_pairs:
+                continue
             test_file = render_test_file(inst, cond, mod)
             messages = render_prompt(variant, inst.description, inst.entry_point, mod, test_file)
             requests.append(
@@ -166,10 +169,16 @@ def main(argv=None):
     ap.add_argument("--tag", default="")
     ap.add_argument("--kv-cache-dtype", default="bf16", help="server setting, recorded in config.json only")
     ap.add_argument("--resume", default=None, help="run dir: re-grade, re-monitor and re-score its samples")
+    ap.add_argument(
+        "--fill", default=None, help="run dir: generate its missing (task, condition) pairs, then finish"
+    )
     args = ap.parse_args(argv)
 
     if args.resume:
         resume(Path(args.resume), args)
+        return
+    if args.fill:
+        fill(Path(args.fill), args)
         return
     insts = load_instances(args.data, args.split, args.n_tasks)
     by_id = {i.task_id: i for i in insts}
@@ -204,6 +213,38 @@ def main(argv=None):
     write_jsonl(run_dir / "samples.jsonl", rows)
     print(f"generated {len(rows)} in {time.time() - t0:.0f}s", flush=True)
     finish(run_dir, rows, by_id, not args.no_monitors, t0)
+
+
+def fill(run_dir: Path, args) -> None:
+    """Generate the (task, condition) pairs missing from an interrupted run with its own settings, then finish."""
+    cfg = json.loads((run_dir / "config.json").read_text())
+    with open(run_dir / "samples.jsonl") as f:
+        have = {(r["task_id"], r["condition"]) for r in map(json.loads, f) if r}
+    insts = [i for i in load_instances(cfg["data"], "all", None) if i.task_id in set(cfg["task_ids"])]
+    conditions = cfg["conditions"].split(",")
+    missing = {(i.task_id, c) for i in insts for c in conditions} - have
+    print(f"fill {run_dir}: {len(missing)} missing pairs", flush=True)
+    cfg.setdefault("fills", []).append(
+        {"at": datetime.datetime.now(ZoneInfo("Europe/Berlin")).strftime("%H:%M:%S"), "n_pairs": len(missing)}
+    )
+    (run_dir / "config.json").write_text(json.dumps(cfg, indent=2))
+    t0 = time.time()
+    generate(
+        insts,
+        conditions,
+        cfg["variant"],
+        cfg["samples"],
+        cfg["max_tokens"],
+        cfg["temperature"],
+        cfg.get("presence_penalty", 0.0),
+        out_path=run_dir / "samples.jsonl",
+        control_samples=cfg.get("control_samples"),
+        only_pairs=missing,
+    )
+    with open(run_dir / "samples.jsonl") as f:
+        rows = [json.loads(line) for line in f if line.strip()]
+    print(f"generated; {len(rows)} samples in {time.time() - t0:.0f}s", flush=True)
+    finish(run_dir, rows, {i.task_id: i for i in insts}, not args.no_monitors, t0)
 
 
 def resume(run_dir: Path, args) -> None:

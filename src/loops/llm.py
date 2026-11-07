@@ -145,10 +145,14 @@ async def chat_many(
     endpoints = [_Endpoint(u, concurrency) for u in base_urls()]
     start = time.monotonic()
     done = 0
+    # Pick the endpoint only when a slot is free, so `load` counts in-flight requests. Picking all endpoints
+    # up front sends request i to endpoint i % n, which aligns with any period-n request order.
+    slots = asyncio.Semaphore(concurrency * len(endpoints))
 
     async def run(i, req):
         nonlocal done
-        out = await _one(req, endpoints, model)
+        async with slots:
+            out = await _one(req, endpoints, model)
         if on_result is not None:
             on_result(i, out)
         done += 1
