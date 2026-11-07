@@ -5,11 +5,11 @@ Kept up to date during the run by the lead session; `TODO` marks what is still m
 
 ## Team name
 
-TODO
+meowlignment
 
 ## Team members
 
-TODO (one per line: `Name (@handle), role`)
+Artem Petrov (@ArtemPt239), scientist and engineer, problem owner
 
 ## Field
 
