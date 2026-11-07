@@ -26,13 +26,13 @@ Apache 2.0 for code, CC BY 4.0 for text
 
 ### Open problem
 
-A model organism is something easy to test on.
+A model organism is something similar to the real thing, but easy to test on.
 Biology tests on mice and fruit flies first because testing on humans is expensive and dangerous;
 AI safety builds small models that show a misaligned behavior now, with known ground truth, instead of waiting for it to appear in the wild ([Hubinger et al. 2023](https://www.alignmentforum.org/posts/ChDH335ckdvpxXaXX/model-organisms-of-misalignment-the-case-for-a-new-pillar-of-1); [Sleeper Agents](https://arxiv.org/abs/2401.05566)).
 
-Current methods of monitoring AI during training rely exclusively on monitoring the outputs (in part because we are cautious to avoid modifying CoT).
-
-Methods that monitor or align models through their chain of thought (CoT) need a test subject:
+Current methods for monitoring AI during training rely exclusively on its outputs, in part to avoid creating pressure that would make the chain of thought (CoT) obfuscated.
+We want better methods that keep working when output monitors fail, without pushing the model to obfuscate its CoT.
+To develop and test them, we need a test subject:
 a model that reward-hacks in a way a monitor cannot see in the output, but can see in the CoT.
 Without one, nobody can check whether a CoT-based method keeps the CoT honest or teaches the model to hide its reasoning.
 We found no such model organism on a small open model ([LITERATURE.md](https://github.com/ArtemPt239/loops/blob/main/LITERATURE.md), section "Gap"):
