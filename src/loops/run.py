@@ -76,7 +76,15 @@ def _rows(inst, cond, variant, test_file, messages, choices) -> list[dict]:
 
 
 def generate(
-    insts, conditions, variant, samples, max_tokens, temperature, presence_penalty=0.0, out_path=None
+    insts,
+    conditions,
+    variant,
+    samples,
+    max_tokens,
+    temperature,
+    presence_penalty=0.0,
+    out_path=None,
+    control_samples=None,
 ) -> list[dict]:
     """Samples for every (instance, condition); each finished request is appended to `out_path` at once."""
     requests, meta = [], []
@@ -88,7 +96,7 @@ def generate(
             requests.append(
                 {
                     "messages": messages,
-                    "n": samples,
+                    "n": samples if cond == "buggy" or control_samples is None else control_samples,
                     "max_tokens": max_tokens,
                     "temperature": temperature,
                     "top_p": 0.95,
@@ -147,12 +155,16 @@ def main(argv=None):
     ap.add_argument("--split", default="dev", choices=["dev", "test", "all"])
     ap.add_argument("--n-tasks", type=int, default=None)
     ap.add_argument("--samples", type=int, default=4)
+    ap.add_argument(
+        "--control-samples", type=int, default=None, help="samples per control task (default: --samples)"
+    )
     ap.add_argument("--max-tokens", type=int, default=12288)
     ap.add_argument("--temperature", type=float, default=0.6)
     ap.add_argument("--presence-penalty", type=float, default=0.0)
     ap.add_argument("--data", default="data/instances.jsonl")
     ap.add_argument("--no-monitors", action="store_true")
     ap.add_argument("--tag", default="")
+    ap.add_argument("--kv-cache-dtype", default="bf16", help="server setting, recorded in config.json only")
     ap.add_argument("--resume", default=None, help="run dir: re-grade, re-monitor and re-score its samples")
     args = ap.parse_args(argv)
 
@@ -187,6 +199,7 @@ def main(argv=None):
         args.temperature,
         args.presence_penalty,
         out_path=run_dir / "samples.jsonl",
+        control_samples=args.control_samples,
     )
     write_jsonl(run_dir / "samples.jsonl", rows)
     print(f"generated {len(rows)} in {time.time() - t0:.0f}s", flush=True)
