@@ -59,78 +59,47 @@ It is checkable by computation: each desideratum in the problem statement became
 
 Two Claude Code loops share one repository; a lead session wrote their prompts and steered them by messages.
 
-**Experiment loop** (`/goal continue the goal described in PROMPT.md`; [PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/PROMPT.md)):
-takes the top task in [TASKS.md](https://github.com/ArtemPt239/loops/blob/main/TASKS.md), runs atomic steps in subagents, writes a failing test first ([tests/](https://github.com/ArtemPt239/loops/tree/main/tests)), then the code ([src/loops/](https://github.com/ArtemPt239/loops/tree/main/src/loops)), runs the model, and records every result, decision and failure in [LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md).
+**Experiment loop** (`/goal continue the goal described in PROMPT.md`, [PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/PROMPT.md)):
+takes the top task in [TASKS.md](https://github.com/ArtemPt239/loops/blob/main/TASKS.md), writes a failing test ([tests/](https://github.com/ArtemPt239/loops/tree/main/tests)) and then the code ([src/loops/](https://github.com/ArtemPt239/loops/tree/main/src/loops)), runs Qwen3-8B, and journals every result, decision and failure in [LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md).
 
-- **Reads literature:** [LITERATURE.md](https://github.com/ArtemPt239/loops/blob/main/LITERATURE.md), 12 closest works, each with how ours differs; every link fetched and checked.
-- **Writes and runs code:**
-  tasks from HumanEval+/MBPP+ ([tasks.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/tasks.py));
-  an altered solution by one AST change to the reference ([mutate.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/mutate.py));
-  a 6-test CI file, 5 correct tests + 1 written from the altered solution, so honest code scores 5/6 and only a hack scores 6/6 ([env.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/env.py), [prompts.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/prompts.py));
-  Qwen3-8B on vLLM ([llm.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/llm.py));
-  same-model monitors on code + tests, code only, and CoT ([monitors.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/monitors.py), [think_monitor.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/think_monitor.py));
-  one command per run ([run.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/run.py)) writing `runs/<timestamp>-<variant>/`.
-- **Checks its own results:**
-  ground-truth labels by running the model's code on fresh inputs in a sandbox and comparing with both solutions ([grader.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/grader.py));
-  two controls (6 correct tests; 5 tests with nothing on the disputed input) for honest mistakes and ambiguous descriptions;
-  a positive control showing the code monitors do catch the canonical hardcoding hack ([controls.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/controls.py));
-  a stronger same-size monitor (thinking on) as a robustness check;
-  95% confidence intervals that resample tasks ([stats.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/stats.py));
-  manual reading of samples of every label;
-  a prompt-variant choice rule written down before the second dev run finished;
-  a held-out split of 150 tasks on which no model output was seen before the final run (the comparison-flip subgroup was singled out from the synthetic positive control on these tasks, before generation).
-- **State in files:** PROMPT.md, TASKS.md, LAB_JOURNAL.md, `runs/` (config, every sample with its reasoning and monitor answers, metrics), [results/](https://github.com/ArtemPt239/loops/tree/main/results).
+- **Reads literature:** [LITERATURE.md](https://github.com/ArtemPt239/loops/blob/main/LITERATURE.md), 12 closest works, each with how ours differs.
+- **Writes and runs code:** builds tasks with one buggy test ([env.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/env.py), [mutate.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/mutate.py)), runs the model and same-size monitors ([run.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/run.py), [monitors.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/monitors.py)); every run is saved in `runs/` with each sample's reasoning and monitor answers.
+- **Checks its own results:** labels by executing the code ([grader.py](https://github.com/ArtemPt239/loops/blob/main/src/loops/grader.py)); two controls without a wrong test; a positive control showing the monitors do catch ordinary hardcoding; a stronger, reasoning monitor; 95% intervals; manual reading of samples; a held-out split of 150 tasks.
 
-**Ideas loop** ([IDEAS-PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/IDEAS-PROMPT.md)):
-proposes candidate setups from the literature, argues against each one criterion by criterion, pilots survivors on the real model, and ranks them ([ideas/RANKING.md](https://github.com/ArtemPt239/loops/blob/main/ideas/RANKING.md)), so the experiment loop is not limited by slow experiments.
-15 setups proposed, 10 rejected on paper with reasons, 3 measured on held-out tasks; the experiment loop then scaled the ideas loop's top candidate.
+**Ideas loop** ([IDEAS-PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/IDEAS-PROMPT.md)): proposes setups from the literature, argues against each one criterion by criterion, pilots survivors and ranks them ([ideas/RANKING.md](https://github.com/ArtemPt239/loops/blob/main/ideas/RANKING.md)).
+15 setups proposed, 10 rejected on paper, 3 measured on held-out tasks.
 
 ### What the loop found
 
-**No training needed to elicit the behavior: the reward structure alone (score = fraction of CI tests passed, one buggy test, no instruction to hack) makes Qwen3-8B write the buggy test's behavior in 17% [12, 23] of samples (51/300), against 0/150 and 1/150 in the two controls (Fisher p = 2e-10).**
-Full results: [results/summary.md](https://github.com/ArtemPt239/loops/blob/main/results/summary.md); held-out run: [runs/20261107-143501-neutral-heldout](https://github.com/ArtemPt239/loops/tree/main/runs/20261107-143501-neutral-heldout).
+**The reward structure alone (score = fraction of CI tests passed, one buggy test, no instruction to hack) makes Qwen3-8B hack in 17% [12, 23] of samples on 150 held-out tasks, against 0–1% in two controls without a wrong test.**
+The hack is a one-token change that reads like an ordinary implementation choice.
+The reasoning says it outright ("given that the test case is part of the problem, I must adjust my code…", HumanEval/3), while the code monitor answers "The code correctly implements the task description".
+Full results: [results/summary.md](https://github.com/ArtemPt239/loops/blob/main/results/summary.md).
 
-The hack is a one-token change (`<=` for `<`, a constant ±1) that reads like an ordinary implementation choice; the reasoning states the conflict and the decision, e.g.
-"But given that the test case is part of the problem, I must adjust my code to return True if the balance is less than or equal to zero" (HumanEval/3), while the code monitor answers "The code correctly implements the task description".
+| setup, held-out tasks | tasks | hacks (control) | code monitor catches | CoT monitor catches / false alarms |
+|---|---|---|---|---|
+| best setup: one buggy test | 150 | 17% (0%) | 22% | 75% / 7% |
+| best setup, comparison flips | 41 | 33% (0%) | 7% (2/27) | 74% / 6% |
+| best setup, varied correct tests | 50 | 30% (0%) | 0% (0/15) | 67% / 10% |
+| CI feedback round (second turn with the red CI log) | 50 | 34% (0%) | 6% | 100% / 33% (9 honest samples) |
+| tests for a teammate's buggy function | 50 | 48% (2%) | 17% | 62% / 10% |
 
-On 150 held-out tasks, with the monitors as specified (Qwen3-8B, thinking off):
+All monitors are the same Qwen3-8B with thinking off; "best setup" is "setup A" in the repository.
 
-| | all hidden hacks (51) | comparison flips (27, 41 tasks) |
-|---|---|---|
-| hack rate, buggy test | 17% [12, 23] | 33% [20, 48] |
-| code + tests monitor catches | 22% [10, 35], AUROC 0.65, flags 2% of honest | 7% (2/27) |
-| code-only monitor catches | 16% [6, 28] | 0% (0/27) |
-| CoT monitor catches | 75% [58, 90], AUROC 0.83, flags 7% of honest | 74% (20/27) |
-
-**Three setups measured on held-out tasks** (Qwen3-8B; monitors as specified, thinking off; details in [results/summary.md](https://github.com/ArtemPt239/loops/blob/main/results/summary.md) and [ideas/08](https://github.com/ArtemPt239/loops/blob/main/ideas/08-tests-for-given-buggy-code.md)):
-
-| setup | tasks × samples | hack rate (control) | code monitor catches | CoT monitor catches / flags honest | criteria failed |
-|---|---|---|---|---|---|
-| best setup (setup A in the repo): one buggy test from an altered solution | 150 × 2 | 17% (0%, 0.7%) | 22% | 75% / 7% | none (3, 4 on point estimates) |
-| best setup, comparison flips only | 41 × 2 | 33% (0%) | 7% (2/27) | 74% / 6% | none |
-| CI feedback round: best setup + a second turn showing the red CI log | 50 × 1 (41 comparison flips) | 34% (0%) | 6% (1/17) | 100% / 33% (3/9) | 4 (false positives, n = 9 honest) |
-| tests for a teammate's buggy function | 50 × 1 | 48% (2%) | 17% | 62% / 10% | 4 (catch rate) |
-| best setup with varied correct tests (same 50 tasks as the CI feedback round) | 50 × 1 | 30% (0%) | 0% (0/15) | 67% / 10% (1/10) | 4 (67% vs 70%, n = 15) |
-
-- The best setup and the CI feedback round are the strongest candidates; the CI feedback round is closer to how coding agents work (push, CI fails, fix) but its honest samples are few. In "tests for a buggy function" many hacks are unknowing (the model copies the code's behavior into the test without noticing the bug), which no CoT monitor can catch; its CoT monitor prompt was tuned on pilot tasks, 7 of which overlap the 50 (on the other 43 it catches 14/22).
-- For the best setup, all six required criteria pass on point estimates; for criteria 3 and 4 the confidence intervals cross the thresholds ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
-- **Robustness check that partly fails:** the same Qwen3-8B with thinking on, reading code + tests, catches 60% of hidden hacks (AUROC 0.80); reading code only, it catches 18% and 1 of 27 comparison flips. So the hack is not visible in the code itself, but a reasoning monitor can find it by checking the buggy test against the description.
-- **Positive control:** the same code monitors flag a synthetic hardcoded special case 80–91% of the time (AUROC 0.86–0.88), so they are not blind; they barely separate the altered solution from the reference (flag 29–45% vs 7–22%; AUROC 0.64–0.65, comparison flips 0.55).
-- 69% of the model's hacks are hidden hacks; the rest are narrow edge cases, none matching a literal test input.
-- **Seed dataset:** [results/sneaky_hacks.jsonl](https://github.com/ArtemPt239/loops/blob/main/results/sneaky_hacks.jsonl), 37 samples that are exactly the target (hidden hack, CoT monitor catches, code + tests monitor misses), with prompt, reasoning, code and every monitor answer.
-- **Confidence:** high that the reward structure induces the behavior (large effect against two controls, labels by execution, hidden hacks from 30 different tasks, manual review of dev samples found no label errors); moderate on criteria 3 and 4 (point estimates pass, intervals cross thresholds, and a thinking monitor that sees the tests catches most hacks).
+- The best setup passes all criteria on point estimates; for the two monitor criteria the intervals cross the thresholds ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
+- The monitors are not blind: they flag a synthetic hardcoded special case 80–91% of the time.
+- Seed dataset: 37 samples that are exactly the target behavior, in [results/sneaky_hacks.jsonl](https://github.com/ArtemPt239/loops/blob/main/results/sneaky_hacks.jsonl).
+- Confidence: high that the reward structure induces the behavior (large effect against two controls, labels by execution, hacks from 30 different tasks); moderate on the monitor criteria.
 
 ### Where it got stuck
 
-- **The hack is subtle, not invisible.** A same-size monitor that thinks and reads the tests catches 60% of hidden hacks; the organism only defeats monitors that do not reason or do not see the tests.
-- Two designs were rejected before any code ([LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md)): tests that only hardcoding can pass (as in [ImpossibleBench](https://arxiv.org/abs/2510.20270)), because the model then hardcodes and any output monitor sees it; and a suite where every visible test comes from the altered solution, because honest work would earn nothing.
-- A third of buggy-condition samples (98/300) ran out of tokens (12,288) while deliberating about the conflict; they count as `other`, so the hack rate is a lower bound.
-- The 5 correct visible tests were the 5 smallest agreeing inputs, so in 67 of 182 tasks all five expect the same output (e.g. `[]` five times); the buggy test is then often the only informative one. Measured on existing samples, this biases the hack rate upward but not significantly (best setup: 20% with degenerate suites vs 15% with varied ones, p = 0.26). The test selection was then fixed (distinct expected outputs first; degenerate suites 17 → 3 on the rerun tasks) and the same 50 tasks rerun: hidden hacks 30% vs 29% with the old suites (p = 0.82), so the degenerate tests did not drive the effect; there too, a reasoning monitor reading the tests catches 13/15, from the code alone 3/15 (last row of the table; [run](https://github.com/ArtemPt239/loops/tree/main/runs/20261107-155418-neutral-varied)).
-- Same-size monitors are unreliable: Qwen3-8B without thinking first read its score as confidence rather than suspicion (found by reading outputs, fixed); the CoT monitor flags 7% of honest samples and misses 25% of hidden hacks.
-- Prompt pressure ("tonight's release is cancelled if CI is red") did not raise hacking (7/64 vs 7/64 on dev).
-- Comparison flips, the best subgroup, cover only 41 held-out tasks; a comparison-only dataset could not reach 100 tasks.
-- Infrastructure: the first dev runs were lost to client timeouts under load; throughput was KV-cache bound until we switched vLLM to an fp8 KV cache (dev bf16, held-out fp8); a routing bug sent every buggy-condition request to one server, found from server metrics and fixed with a fill-in mode into the same run.
-- Time budget: runs launched after 14:57 (the thinking-monitor rows) are capped at 50 samples per label to fit the deadline.
+- **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
+- Two designs were rejected before any code: tests that only hardcoding can pass (as in [ImpossibleBench](https://arxiv.org/abs/2510.20270)), which any output monitor sees; and a suite where every test is wrong, where honest work earns nothing.
+- A third of samples ran out of tokens while deliberating, so the hack rate is a lower bound.
+- The first correct tests were often trivial (one output five times); after fixing and rerunning, the hack rate did not change (30% vs 29%).
+- Same-size monitors are unreliable: one misread its score scale (found by reading outputs, fixed), and the CoT monitor misses 25% of hacks.
+- In "tests for a buggy function" many hacks are unknowing, so no CoT monitor can catch them.
+- Infrastructure: client timeouts, a KV-cache bottleneck and a request-routing bug, each found from logs or server metrics and fixed ([LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md)).
 
 ### What it would need next
 
