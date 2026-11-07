@@ -30,7 +30,7 @@ and `SUBMISSION.md` answers every field of the [submission template](https://git
 with every claim linked to a file in this repository.
 A well-measured negative result also reaches the goal.
 
-**Deadline: 16:20 CET today.** Stop new experiments at 15:45 CET and spend the rest on `results/summary.md`, `README.md` and `SUBMISSION.md`.
+**Deadline: submission ready by 16:10 CET today.** Launch no new runs after 15:15; freeze experiments at 15:35 (what is in `samples.jsonl` by then is the result; `--resume` only to finish grading, monitors and metrics). Commit `results/summary.md` and `README.md` by 15:55. `SUBMISSION.md` is written by the lead session.
 
 ## Candidate setups
 
