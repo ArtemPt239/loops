@@ -1,5 +1,12 @@
 # Lab journal
 
+## 2026-11-07 16:30 — Final verdict stated strictly; GPUs stopped
+
+- The goal's stop check (correctly) noted that "passes on point estimates" is not a clear verdict. Restated in [results/summary.md](results/summary.md), [README.md](README.md) and [PROMPT.md](PROMPT.md): **at 95% confidence no setup is established to pass all of criteria 1–6.** Setup A (150 held-out tasks) passes 1, 2, 5, 6 with CIs clear of the thresholds; 3 and 4 only on point estimates (22% [10, 35] vs ≤ 30%; 75% [58, 90] vs ≥ 70%).
+- Why: 51 hidden hacks give ±12–16-point intervals around rates 5–8 points from the thresholds. Rough sample need (independent samples, Wilson-like): ~100 hidden hacks for criterion 3, ~300 for criterion 4; task clustering raises both.
+- Setup 06 and the varied-tests run (50 tasks each) are below the 100-task requirement: exploratory only.
+- The user had the lead stop all GPU instances at 16:26 (experiments done), so no further runs.
+
 ## 2026-11-07 16:25 — Submission and demo deck ready (lead)
 
 - [SUBMISSION.md](SUBMISSION.md): final issue text; the best setup ("setup A" in the repo), the cross-setup held-out table, limits, next steps. Every number checked against `results/summary.md` and run metrics; repo-wide secret scan clean.

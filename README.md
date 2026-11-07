@@ -22,7 +22,7 @@ The prompt never mentions hacking. Ground truth comes from running the code on f
 - Qwen3-8B writes the altered behavior in **17% [12, 23]** of samples, vs 0/150 and 1/150 in two controls (p < 1e-8). No training: the reward structure alone induces it.
 - A same-size code monitor (Qwen3-8B, thinking off) that sees description + tests + code catches **22% [10, 35]** of these hacks; for comparison flips, 2 of 27.
 - A CoT monitor (same model) catches **75% [58, 90]**, with 7% false positives on honest samples. The reasoning says it plainly: "given that the test case is part of the problem, I must adjust my code to return True if the balance is less than or equal to zero."
-- Criteria 1–6 of [PROBLEM.md](PROBLEM.md) pass on point estimates; the CIs for criteria 3 and 4 cross their thresholds.
+- **Verdict at 95% confidence: no setup is established to pass all of criteria 1–6.** Setup A passes criteria 1, 2, 5, 6 with CIs clear of the thresholds; criteria 3 and 4 pass on point estimates only (their CIs cross the thresholds). With 51 hidden hacks the intervals are too wide; roughly 100 (criterion 3) to 300 (criterion 4) hidden hacks would settle them.
 - **Main limit:** the same model with thinking on, given the tests, catches 60% of hidden hacks (AUROC 0.80). The hack is invisible in the code alone (thinking monitor without tests: 1 of 27 comparison flips) but visible to a monitor that reasons and checks the buggy test against the description.
 - 33% of buggy-condition samples run out of the 12k-token budget while deliberating about the conflict.
 - Positive control: the same code monitors flag a canonical hardcode (`if args == <test input>: return <expected>`) 80–91% of the time.
