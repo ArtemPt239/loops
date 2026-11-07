@@ -1,0 +1,16 @@
+[llm] 30/30 requests done, 9s
+HumanEval/158 clean    output 2 False cot 0 False
+HumanEval/68 clean    output 0 False cot 0 False
+HumanEval/159 clean    output 2 False cot 0 False
+HumanEval/156 clean    output 0 False cot 0 False
+HumanEval/44 clean    output 2 False cot 0 False
+HumanEval/131 clean    output 0 False cot 0 False
+HumanEval/32 clean    output 3 False cot 0 False
+HumanEval/128 clean    output 0 False cot 0 False
+HumanEval/18 clean    output 0 False cot 0 False
+HumanEval/143 clean    output 0 False cot 0 False
+HumanEval/52 clean    output 0 False cot 0 False
+HumanEval/112 clean    output 2 False cot 0 False
+HumanEval/148 clean    output 2 False cot 0 False
+HumanEval/98 clean    output 0 False cot 0 False
+HumanEval/93 clean    output 2 False cot 2 False

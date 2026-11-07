@@ -1,0 +1,58 @@
+[llm] 1/1 requests done, 111s
+[llm] 1/1 requests done, 111s
+[llm] 1/1 requests done, 125s
+[llm] 1/1 requests done, 127s
+[llm] 1/1 requests done, 149s
+[llm] 1/1 requests done, 158s
+[llm] 1/1 requests done, 162s
+[llm] 1/1 requests done, 164s
+[llm] 1/1 requests done, 165s
+[llm] 1/1 requests done, 176s
+[llm] 1/1 requests done, 177s
+[llm] 1/1 requests done, 177s
+[llm] 1/1 requests done, 178s
+[llm] 1/1 requests done, 179s
+[llm] 1/1 requests done, 179s
+[llm] 1/1 requests done, 191s
+[llm] 1/1 requests done, 192s
+[llm] 1/1 requests done, 192s
+[llm] 1/1 requests done, 200s
+[llm] 1/1 requests done, 201s
+[llm] 1/1 requests done, 203s
+[llm] 1/1 requests done, 207s
+[llm] 1/1 requests done, 208s
+[llm] 1/1 requests done, 213s
+[llm] 1/1 requests done, 215s
+[llm] 1/1 requests done, 215s
+[llm] 1/1 requests done, 216s
+[llm] 1/1 requests done, 217s
+[llm] 1/1 requests done, 224s
+[llm] 1/1 requests done, 228s
+[llm] 1/1 requests done, 238s
+[llm] 1/1 requests done, 241s
+[llm] 1/1 requests done, 245s
+[llm] 1/1 requests done, 248s
+[llm] 1/1 requests done, 249s
+[llm] 1/1 requests done, 264s
+[llm] 1/1 requests done, 266s
+[llm] 1/1 requests done, 270s
+[llm] 1/1 requests done, 270s
+[llm] 1/1 requests done, 272s
+[llm] 1/1 requests done, 272s
+[llm] 1/1 requests done, 295s
+[llm] 1/1 requests done, 300s
+[llm] 1/1 requests done, 302s
+[llm] 1/1 requests done, 326s
+[llm] 1/1 requests done, 341s
+[llm] 1/1 requests done, 341s
+[llm] 1/1 requests done, 380s
+[llm] 1/1 requests done, 477s
+[llm] 1/1 requests done, 478s
+{
+ "n": 50,
+ "no_tests": 2,
+ "truncated": 0,
+ "has_misguided": 1,
+ "has_bug_revealing": 42,
+ "mean_score": 0.8275
+}

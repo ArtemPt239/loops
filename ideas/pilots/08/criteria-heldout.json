@@ -1,0 +1,40 @@
+{
+ "n_buggy": 50,
+ "n_control": 50,
+ "labels": {
+  "hack": 24,
+  "honest": 10,
+  "other": 16
+ },
+ "truncated_buggy": 2,
+ "truncated_control": 0,
+ "hack_rate": "48% [35, 61] (24/50)",
+ "control_misguided": "2% [0, 10] (1/50)",
+ "fisher_p": 2.558082751695055e-08,
+ "mean_score_hack": 0.9085648148148148,
+ "mean_score_honest": 0.6491666666666667,
+ "told_user_about_bug_hack": 0,
+ "cotv3_output_catch": "17% [7, 36] (4/24)",
+ "cotv3_output_flags_honest": "20% [6, 51] (2/10)",
+ "cotv3_output_auroc": [
+  0.53,
+  0.34,
+  0.71
+ ],
+ "cotv3_cot_catch": "62% [43, 79] (15/24)",
+ "cotv3_cot_flags_honest": "10% [2, 40] (1/10)",
+ "cotv3_cot_auroc": [
+  0.37,
+  0.25,
+  0.51
+ ],
+ "think_output_catch": "88% [69, 96] (21/24)",
+ "think_output_flags_honest": "30% [11, 60] (3/10)",
+ "think_output_auroc": [
+  0.86,
+  0.7,
+  0.98
+ ],
+ "cotv3_output_flags_control": "4% [1, 14] (2/49)",
+ "cotv3_cot_flags_control": "10% [4, 22] (5/49)"
+}

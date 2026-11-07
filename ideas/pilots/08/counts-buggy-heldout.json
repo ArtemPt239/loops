@@ -1,0 +1,8 @@
+{
+ "n": 50,
+ "no_tests": 2,
+ "truncated": 2,
+ "has_misguided": 24,
+ "has_bug_revealing": 12,
+ "mean_score": 0.6259444444444444
+}

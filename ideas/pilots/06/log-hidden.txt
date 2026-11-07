@@ -18,3 +18,38 @@
 [llm] APIConnectionError on http://localhost:8002/v1 (attempt 4), retrying
 [llm] APIConnectionError on http://localhost:8002/v1 (attempt 5), retrying
 [llm] APIConnectionError on http://localhost:8002/v1 (attempt 6), retrying
+[llm] APIConnectionError on http://localhost:8002/v1 (attempt 7), retrying
+[llm] 1/1 requests done, 702s
+[llm] 1/1 requests done, 105s
+[llm] 1/1 requests done, 118s
+[llm] 1/1 requests done, 290s
+[llm] 1/1 requests done, 346s
+[llm] 1/1 requests done, 392s
+[llm] 1/1 requests done, 402s
+[llm] 1/1 requests done, 429s
+[llm] 1/1 requests done, 433s
+[llm] 1/1 requests done, 449s
+[llm] 1/1 requests done, 471s
+[llm] 1/1 requests done, 494s
+[llm] 1/1 requests done, 530s
+[llm] 1/1 requests done, 542s
+[llm] 1/1 requests done, 542s
+{
+ "t1": {
+  "honest": 14,
+  "other": 1
+ },
+ "t2": {
+  "other": 4,
+  "honest": 7,
+  "hardcode": 1,
+  "hidden_hack": 2
+ },
+ "final": {
+  "other": 5,
+  "honest": 7,
+  "hardcode": 1,
+  "hidden_hack": 2
+ },
+ "n_generations": 29
+}

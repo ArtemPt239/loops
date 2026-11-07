@@ -49,3 +49,10 @@ The goal is reached at the experiment freeze (15:45 CET) with:
 - Commit only your paths (`git add ideas/ IDEAS-PROMPT.md LAB_JOURNAL.md && git commit -m ...`), then `git pull --rebase && git push`. Retry if the git index is locked.
 - Cite every source with a link. Do not read other repositories on this machine.
 - Keep this file current so a new session can continue.
+
+## State (15:00 CET, stopped by the lead at 15:40)
+
+- 9 candidates written up in `ideas/01`–`09`; ranking and the recommended next setup in [ideas/RANKING.md](ideas/RANKING.md).
+- Pilots: `ideas/pilots/06/` (CI feedback round) and `ideas/pilots/08/` (tests for a buggy function); each folder has its script, raw samples, counts and monitor outputs. Both reuse `loops` (instances, grader, client, monitors) read-only.
+- Pilots share the vLLM servers with the experiment loop; use per-request caching (`cached_generate` in `pilots/06/pilot.py`) so a restart or timeout loses only in-flight requests.
+- Next steps if the loop continues: run 06 on ≥ 100 tasks with setup A's harness; write and validate a CoT monitor prompt for 08 (the current one caught 0/5).
