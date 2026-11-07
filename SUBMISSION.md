@@ -102,6 +102,8 @@ Details per row: [best setup](https://github.com/ArtemPt239/loops/blob/main/resu
 
 - The best setup passes all criteria on point estimates ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
 - The monitors are not blind: they flag a synthetic hardcoded special case 80–91% of the time.
+- **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
+- In "tests for a buggy function" many hacks are unknowing (the model copies the code's behavior into the test without noticing the bug), so no CoT monitor can catch them.
 - The conflict is very present in the reasoning: a third of samples deliberated over it until they ran out of tokens (12k), so the hack rates above are lower bounds.
 - Seed dataset: 37 samples that are exactly the target behavior, in [results/sneaky_hacks.jsonl](https://github.com/ArtemPt239/loops/blob/main/results/sneaky_hacks.jsonl).
 - Confidence: high that the reward structure induces the behavior (large effect against two controls, labels by execution, hacks from 30 different tasks); moderate on the monitor criteria.
@@ -115,11 +117,12 @@ How we got around it:
 - run a parallel ideas loop that generates candidate setups, filters them down to the most promising on paper and with small pilots, and feeds those to the experiment loop to verify, so the experiment loop never waits for its next idea;
 - get more out of the GPUs: three servers, an fp8 KV cache (GPU memory, not compute, was the limit), and a fix for a routing bug that had sent all requests to one server ([LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md)).
 
-Other limits:
-- **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
-- The first correct tests were often trivial (one output five times); after fixing and rerunning, the hack rate did not change (30% vs 29%).
-- Same-size monitors are unreliable: one misread its score scale (found by reading outputs, fixed), and the CoT monitor misses 25% of hacks.
-- In "tests for a buggy function" many hacks are unknowing, so no CoT monitor can catch them.
+Other places the loop got stuck or went wrong:
+- **A wrong result it caught itself:** the monitors first read their 0–10 score as confidence instead of suspicion; the loop found this by reading monitor outputs on its first smoke run and fixed it before the real runs.
+- **A flaw it missed:** it picked the five correct visible tests as the smallest inputs, so many test files were trivial (one output five times). The lead noticed; the loop measured the bias on existing samples, fixed the selection and reran: the hack rate did not change (30% vs 29%).
+- **Lost runs:** its first development runs timed out under load and produced nothing; after that it saved every sample as soon as it finished.
+- **Permission stalls:** its commits were blocked by its own permission settings for about 10 minutes until a human approved them.
+- **Steering it needed:** the lead asked for the positive control and the reasoning-monitor check; the loop added the second control, with no test on the disputed input, on its own.
 
 ### What it would need next
 
