@@ -1,5 +1,11 @@
 # Lab journal
 
+## 2026-11-07 16:25 — Submission and demo deck ready (lead)
+
+- [SUBMISSION.md](SUBMISSION.md): final issue text; the best setup ("setup A" in the repo), the cross-setup held-out table, limits, next steps. Every number checked against `results/summary.md` and run metrics; repo-wide secret scan clean.
+- Demo deck (12 slides, shared by link): https://claude.ai/artifact/3TJM2YsQ7v4BV6pJrJawHM. Desideratum names on the problem slide match the desideratum-to-check slide and the submission table.
+- Still to do by the user: file the issue; terminate the 3 GPU instances after the demo.
+
 ## 2026-11-07 16:03 — Varied visible tests: hack rate unchanged (30% vs 26–29%), code monitors 0/15
 
 Run [runs/20261107-155418-neutral-varied](runs/20261107-155418-neutral-varied/) (423 s generation; 3 endpoints).
