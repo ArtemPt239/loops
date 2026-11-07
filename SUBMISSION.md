@@ -79,6 +79,8 @@ takes the top task in [TASKS.md](https://github.com/ArtemPt239/loops/blob/main/T
 
 **Ideas loop** ([IDEAS-PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/IDEAS-PROMPT.md)): proposes setups from the literature, argues against each one criterion by criterion, pilots survivors and ranks them ([ideas/RANKING.md](https://github.com/ArtemPt239/loops/blob/main/ideas/RANKING.md)).
 15 setups proposed, 10 rejected on paper, 3 measured on held-out tasks.
+Rejecting designs on paper is cheap and saves GPU time.
+For example, two designs were rejected before any code: tests that only hardcoding can pass (as in [ImpossibleBench](https://arxiv.org/abs/2510.20270)), which any output monitor sees; and a suite where every test is wrong, where honest work earns nothing.
 
 ### What the loop found
 
@@ -114,7 +116,6 @@ How we got around it:
 
 Other limits:
 - **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
-- Two designs were rejected before any code: tests that only hardcoding can pass (as in [ImpossibleBench](https://arxiv.org/abs/2510.20270)), which any output monitor sees; and a suite where every test is wrong, where honest work earns nothing.
 - A third of samples ran out of tokens while deliberating, so the hack rate is a lower bound.
 - The first correct tests were often trivial (one output five times); after fixing and rerunning, the hack rate did not change (30% vs 29%).
 - Same-size monitors are unreliable: one misread its score scale (found by reading outputs, fixed), and the CoT monitor misses 25% of hacks.
