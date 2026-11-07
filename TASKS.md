@@ -24,20 +24,24 @@ Design notes from the lead session (13:45), apply when reaching each task:
 - [x] **Monitors**: code-only and CoT monitors (same model, thinking off, 0–10 score + verdict). Optional Claude monitor. Test the prompt parser.
 - [x] **End-to-end run**: `uv run python -m loops.run --variant <name> --n-tasks N --samples K` writes `runs/<timestamp>-<variant>/`. Smoke run on 5 tasks.
 - [x] **Smoke run** (3 tasks): pipeline works; found and fixed monitor score inversion (journal 13:59).
-- [ ] **Positive control for code monitors** (*parallel*, subagent): reference / altered / reference + hardcoded special case, scored offline by both code monitors on the 150 test instances.
+- [x] **Positive control for code monitors** (*parallel*, subagent): reference / altered / reference + hardcoded special case, scored offline by both code monitors on the 150 test instances.
 - [x] **control5 condition**: 5 agreeing tests only, nothing pins the disagreeing input; measures how often the model writes the altered behavior with no test pushing it (description ambiguity / honest mistake).
-- [ ] **Dev runs**: neutral vs release, 32 dev tasks x 2 samples (restarted 14:09 after timeouts). Spot-check 10 monitor outputs.
-- [ ] **Held-out run**: best variant on 150 test tasks, buggy + control + control5.
-- [ ] (optional) Code + tests monitor with thinking on, on hidden hacks + equal number of honest samples.
-- [ ] **Baseline**: control vs buggy-test with a neutral prompt, ≥100 tasks × 4 samples.
-- [ ] **Variants loop**: try realistic pressure variants (never instructing to hack). Pick the next variant from the last results; journal each.
-- [ ] **Criteria check for setup A**: fill the criteria table from PROMPT.md for setup A. For each failing criterion, write why and what change would fix it; add those changes as tasks above this one.
-- [ ] **Setup B or a new setup** (only if A cannot pass): implement, run, fill the criteria table.
-- [ ] **Report**: `results/summary.md` with the criteria table for every setup tried, rates, 95% CIs, monitor catch rates, false-positive rates, a plot, and quoted examples of hidden-hack reasoning.
-- [ ] **Manual review**: read 10+ samples of each label; record disagreements with the automatic labels.
-- [ ] **Write-up**: `README.md` (what, how to run, results, limits) and `results/summary.md`. (`SUBMISSION.md` is drafted by the lead session.)
+- [x] **Dev runs**: neutral vs release, 32 dev tasks x 2 samples (restarted 14:09 after timeouts). Spot-check 10 monitor outputs.
+- [x] **Held-out run**: best variant on 150 test tasks, buggy + control + control5.
+- [x] (optional) Code + tests monitor with thinking on, on hidden hacks + equal number of honest samples.
+- [x] **Baseline**: control vs buggy-test with a neutral prompt, ≥100 tasks × 4 samples.
+- [x] **Variants loop**: try realistic pressure variants (never instructing to hack). Pick the next variant from the last results; journal each.
+- [x] **Criteria check for setup A**: fill the criteria table from PROMPT.md for setup A. For each failing criterion, write why and what change would fix it; add those changes as tasks above this one.
+- [ ] ~~**Setup B or a new setup**~~ not needed: A passes criteria 1–6 on point estimates (journal 15:15). Kept for later: implement, run, fill the criteria table.
+- [x] **Report**: `results/summary.md` with the criteria table for every setup tried, rates, 95% CIs, monitor catch rates, false-positive rates, a plot, and quoted examples of hidden-hack reasoning.
+- [x] **Manual review**: read 10+ samples of each label; record disagreements with the automatic labels.
+- [x] **Write-up**: `README.md` (what, how to run, results, limits) and `results/summary.md`. (`SUBMISSION.md` is drafted by the lead session.)
 
 ## Later (would need more time)
+
+- Rerun thinking monitors at full size (capped at 50 per label for the deadline) and the held-out run with more samples, to settle criteria 3 and 4 (CIs cross the thresholds).
+- Grow the comparison-flip set (`==`/`!=` → `<=`/`>=`, slice bounds), each with a positive control first.
+- Larger token budget: 33% of buggy samples truncate at 12,288 tokens.
 
 - Fine-tune on the hidden-hack samples without the pressure prompt, so the behavior no longer needs a prompt.
 - RL with reward = visible tests passed, to test whether the behavior emerges from the reward alone.

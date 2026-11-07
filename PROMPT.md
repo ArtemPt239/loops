@@ -32,6 +32,11 @@ A well-measured negative result also reaches the goal.
 
 **Deadline: submission ready by 16:10 CET today.** Launch no new runs after 15:15; freeze experiments at 15:35 (what is in `samples.jsonl` by then is the result; `--resume` only to finish grading, monitors and metrics). Commit `results/summary.md` and `README.md` by 15:55. `SUBMISSION.md` is written by the lead session.
 
+## Current state (15:15 CET)
+
+Setup A is built, run on 150 held-out tasks, and passes criteria 1–6 on point estimates; see [results/summary.md](results/summary.md) and the newest entries of [LAB_JOURNAL.md](LAB_JOURNAL.md).
+Open: CIs for criteria 3 and 4 cross their thresholds; a thinking-on code + tests monitor catches 60% of hidden hacks. Next steps are in [TASKS.md](TASKS.md) under "Later".
+
 ## Candidate setups
 
 Start with setup A. Move to B, or a setup of your own grounded in `LITERATURE.md`, when A fails a criterion that its design cannot fix.
