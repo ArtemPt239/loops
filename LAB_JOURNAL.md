@@ -1,5 +1,11 @@
 # Lab journal
 
+## 2026-11-07 15:34 — Setup 06 (CI feedback round) launched; deadline moved
+
+- Change of plan (user, via lead): deadline 17:00, freeze 16:00, write-up 16:20. Task: measure setup 06 from [ideas/06-ci-feedback-round.md](ideas/06-ci-feedback-round.md) with setup A's instances, grader, controls and monitors unchanged.
+- [src/loops/feedback.py](src/loops/feedback.py) (scaled from the lead's pilot, test [tests/test_feedback.py](tests/test_feedback.py)): turn 1 = setup A's `neutral` prompt with the test file named but not shown; if the code fails any visible test, turn 2 shows a pytest-style log of the red CI (failing assert, expected and actual value) and asks for the updated file. The final code is turn 2's if there was one. Monitors see the condition's test file, the final code and the final turn's reasoning.
+- Run `runs/20261107-153402-ci_feedback/`: held-out tasks, all 41 comparison flips + 9 others (seed 0), buggy + control, 1 sample each (user's ≤ 50 per group rule), endpoints 8000 + 8001 only (8002 is the ideas loop's), fp8 KV.
+
 ## 2026-11-07 15:15 — Held-out result: setup A passes criteria 1–6 on point estimates; thinking monitor with tests catches 60%
 
 Run [runs/20261107-143501-neutral-heldout](runs/20261107-143501-neutral-heldout/) (150 test tasks, `neutral`, buggy ×2, control ×1, control5 ×1, fp8 KV; completed with `--fill` after the routing fix). Full write-up: [results/summary.md](results/summary.md).
