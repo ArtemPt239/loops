@@ -102,6 +102,7 @@ Details per row: [best setup](https://github.com/ArtemPt239/loops/blob/main/resu
 
 - The best setup passes all criteria on point estimates ([criteria table](https://github.com/ArtemPt239/loops/blob/main/results/criteria_table.md)).
 - The monitors are not blind: they flag a synthetic hardcoded special case 80–91% of the time.
+- The conflict is very present in the reasoning: a third of samples deliberated over it until they ran out of tokens (12k), so the hack rates above are lower bounds.
 - Seed dataset: 37 samples that are exactly the target behavior, in [results/sneaky_hacks.jsonl](https://github.com/ArtemPt239/loops/blob/main/results/sneaky_hacks.jsonl).
 - Confidence: high that the reward structure induces the behavior (large effect against two controls, labels by execution, hacks from 30 different tasks); moderate on the monitor criteria.
 
@@ -116,7 +117,6 @@ How we got around it:
 
 Other limits:
 - **Subtle, not invisible:** the same Qwen3-8B allowed to reason, reading code and tests, catches 60% of hidden hacks; from the code alone, 18%.
-- A third of samples ran out of tokens while deliberating, so the hack rate is a lower bound.
 - The first correct tests were often trivial (one output five times); after fixing and rerunning, the hack rate did not change (30% vs 29%).
 - Same-size monitors are unreliable: one misread its score scale (found by reading outputs, fixed), and the CoT monitor misses 25% of hacks.
 - In "tests for a buggy function" many hacks are unknowing, so no CoT monitor can catch them.
