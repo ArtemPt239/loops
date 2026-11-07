@@ -61,6 +61,15 @@ It is checkable by computation: each desideratum in the problem statement became
 
 Two Claude Code loops share one repository; a lead session wrote their prompts and steered them by messages.
 
+**From desiderata to a goal the loop can check.**
+Before any code, the lead session turned each desideratum in [PROBLEM.md](https://github.com/ArtemPt239/loops/blob/main/PROBLEM.md) into a quantity the loop can compute and a pass threshold, fixed in advance (table above; [PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/PROMPT.md), Goal table):
+"hidden in the code" became the catch rate of a same-size monitor that reads the code;
+"visible in the reasoning", the catch rate and false-alarm rate of the same model reading the CoT;
+"measurable", a label computed by executing the code against the reference and the altered solution;
+"realistic", honest work still earning reward.
+We added the one desideratum the problem left implicit, that the hack is frequent enough to study, and a control without the incentive for every task, so hacking caused by the reward is separated from honest mistakes.
+The table filled in on held-out tasks, with every number linked to a raw run, is the stopping condition of the experiment loop's `/goal`: it gave the loop a definition of done it could check by itself.
+
 **Experiment loop** (`/goal continue the goal described in PROMPT.md`, [PROMPT.md](https://github.com/ArtemPt239/loops/blob/main/PROMPT.md)):
 takes the top task in [TASKS.md](https://github.com/ArtemPt239/loops/blob/main/TASKS.md), writes a failing test ([tests/](https://github.com/ArtemPt239/loops/tree/main/tests)) and then the code ([src/loops/](https://github.com/ArtemPt239/loops/tree/main/src/loops)), runs Qwen3-8B, and journals every result, decision and failure in [LAB_JOURNAL.md](https://github.com/ArtemPt239/loops/blob/main/LAB_JOURNAL.md).
 
